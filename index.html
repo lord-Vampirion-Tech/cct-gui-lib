@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Документация GUI</title>
+    <style>
+        :root {
+            --code: #1d1d1d;
+            --block: #00ff00;
+            --block_border: #002e65;
+            --accent: #005f87;
+        }
+
+        body {
+            font-family: sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: var(--accent);
+            margin: 10px 0px;
+        }
+
+        pre {
+            background: var(--code);
+            padding: 10px;
+            border-left: 5px solid var(--accent);
+            overflow-x: auto;
+            border-radius: 10px;
+            color: #eee;
+        }
+
+
+        code:not(pre code) {
+            background: var(--code);
+            font-family: monospace;
+            border-radius: 3px;
+            padding: 4px;
+            color: #eee;
+        }
+
+        .component {
+            background: #2b2b2b;
+            border-left: 5px solid #aaa;
+            padding: 4px 10px;
+            margin: 1em 0;
+            border-radius: 10px;
+            color: #eee;
+        }
+
+        .tab-container {
+            display: flex;
+        }
+
+        .tab-buttons {
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid var(--accent);
+            padding-right: 10px;
+            min-width: 200px;
+            position: sticky;
+            top: 20px;
+            /* на сколько пикселей отступ от верха */
+            height: fit-content;
+        }
+
+
+        .tab-button {
+            padding: 10px;
+            cursor: pointer;
+            background: #ddd;
+            border: none;
+            border-bottom: 1px solid #bbb;
+            text-align: left;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .tab-button.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding-left: 20px;
+            flex: 1;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>GUI Lib для CC: Tweaked</h1>
+
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <button class="tab-button active" data-tab="general">1. Общая информация</button>
+            <button class="tab-button" data-tab="manager">2. Manager</button>
+            <button class="tab-button" data-tab="Base">3. Base</button>
+            <button class="tab-button" data-tab="Label">4. Label</button>
+            <button class="tab-button" data-tab="Frame">5. Frame</button>
+            <button class="tab-button" data-tab="Button">6. Button</button>
+            <button class="tab-button" data-tab="CheckBox">7. Check Box</button>
+            <button class="tab-button" data-tab="RadioButton">8. Radio Button</button>
+            <button class="tab-button" data-tab="ProgressBar">9. Progress Bar</button>
+            <button class="tab-button" data-tab="TextInput">10. Text Input</button>
+            <button class="tab-button" data-tab="TextArea">11. Text Area</button>
+        </div>
+
+        <div class="tab-content active" id="general">
+            <h2>Начало </h2>
+
+
+            <p>Данная <strong>библиотека</strong> создана для создания различных интерфейсов с помощью <code>ui</code>
+                элементов для мода <code>CC:Tweaked</code>.
+                хотите иделать панель управления домом, фермами, реактором из модов в конце концов? это все возможно.
+                хотет
+                сделать информациооное табло? тоже не проблема. написал все один раз и кайфуешь</p>
+            <p>Версия библиотеки является сырой, поэтому в ней еще могут быть ошибки. Вы можете сообщать обо всех них в
+                канале Discord под ником Lord_Zif_Tech.</p>
+            <img src="img/screen_1.png" alt="123" width="500px">
+            <img src="img/screen_2.png" alt="123" width="500px">
+            <img src="img/screen_3.png" alt="123" width="500px">
+            <img src="img/screen_4.png" alt="123" width="500px">
+            <img src="img/screen_5.png" alt="123" width="500px">
+            <img src="img/screen_6.png" alt="123" width="500px">
+            <h2>Как начать ей пользоватся?</h2>
+            <p>вставте вот эту ссылку в ваш терминал
+                <code>wget https://raw.githubusercontent.com/lord-Vampirion-Tech/cct-gui-lib/main/GUI.lua GUI.lua</code>
+                и библиотека установится сама с репозиторя Git Hub
+                <code>https://github.com/lord-Vampirion-Tech/cct-gui-lib</code>
+            </p>
+            <p>в своей программе просто пропишите <code>local gui = dofile("GUI.lua")</code> и можете пользоватся всеми
+                благами библиотеки. Все модули, предоставляемые библиотекой, отображаются в боковой панели.</p>
+        </div>
+
+        <div class="tab-content" id="manager">
+            <h2>Manager</h2>
+            <p>объект для работы с группой объектов gui библиотеки.</p>
+            <h3>методы:</h3>
+            <div class="component">
+                <p>Добавить элемент в группу(ы).</p>
+                <code>GUI.Manager:add(element, ...)</code>
+                <pre><code>local Label = {...}
+GUI.Manager:add(Label, "base")</code></pre>
+            </div>
+            <div class="component">
+                <p>Удалить всю группу</p>
+                <code>GUI.Manager:delAll(nameGroup)</code>
+                <pre><code>GUI.Manager:delAll("base")</code></pre>
+            </div>
+            <div class="component">
+                <p>Удалить элементы группы по определенным условиям, которые вы укажите.</p>
+                <code>GUI.Manager:delIf(nameGroup, predicate)</code>
+                <pre><code>local Label = {...} -- обьект типа Label
+local Button = {...} -- обьект типа Button
+
+-- добавляем Label в группу base
+GUI.Manager:add(Label, "base") 
+GUI.Manager:add(Button, "base") 
+
+-- пример удаления по типу
+GUI.Manager:delIf("base", function(e)
+    return e.type == "Button"
+end) </code></pre>
+            </div>
+            <div class="component">
+                <p>Установить цвет для элементов группы</p>
+                <code>GUI.Manager:setColors(nameGroup, colors)</code>
+                <pre><code>GUI.Manager:setColors("base", {
+    back = colors.black,
+    text = colors.blue,
+})</code></pre>
+            </div>
+            <div class="component">
+                <p>Изменить своство у элементов группы по определенным условиям</p>
+                <code>GUI.Manager:setProperty(nameGroup, prop, value)</code>
+                <pre><code>-- обьекты типа Button
+local Button_1 = {...}
+local Button_2 = {...}
+local Button_3 = {...}
+
+-- добавляем Button's в группу base
+GUI.Manager:add(Button_1, "base") 
+GUI.Manager:add(Button_2, "base")
+GUI.Manager:add(Button_3, "base")
+
+-- блокируем взаимодействие со всеми кнопками 
+GUI.Manager:setProperty("base", "locked", true)</code></pre>
+            </div>
+            <div class="component">
+                <p>Выполнить общий метод у элементов группы (лучше сделать проврку по типу)</p>
+                <code>GUI.Manager:callAll(nameGroup, action, ...)</code>
+                <pre><code>while true do
+    local _, side, x, y = os.pullEvent("monitor_touch")
+    
+    -- проверяем, кликнули ли по кнопке или нет
+    GUI.Manager:callAll("base", "onClick", side, x, y)
+end</code></pre>
+            </div>
+        </div>
+
+        <!-- Заглушки -->
+        <div class="tab-content" id="Base">
+            <h2>Base</h2>
+            <p>Описание компонента Base...</p>
+        </div>
+        <div class="tab-content" id="Label">
+            <h2>Label</h2>
+            <p>Описание компонента Label...</p>
+        </div>
+        <div class="tab-content" id="Frame">
+            <h2>Frame</h2>
+            <p>Описание компонента Frame...</p>
+        </div>
+        <div class="tab-content" id="Button">
+            <h2>Button</h2>
+            <p>Описание компонента Button...</p>
+        </div>
+        <div class="tab-content" id="CheckBox">
+            <h2>Check Box</h2>
+            <p>Описание компонента CheckBox...</p>
+        </div>
+        <div class="tab-content" id="RadioButton">
+            <h2>Radio Button</h2>
+            <p>Описание компонента RadioButton...</p>
+        </div>
+        <div class="tab-content" id="ProgressBar">
+            <h2>Progress Bar</h2>
+            <p>Описание компонента ProgressBar...</p>
+        </div>
+        <div class="tab-content" id="TextInput">
+            <h2>Text Input</h2>
+            <p>Описание компонента TextInput...</p>
+        </div>
+        <div class="tab-content" id="TextArea">
+            <h2>Text Area</h2>
+            <p>Описание компонента TextArea...</p>
+        </div>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll(".tab-button");
+        const tabs = document.querySelectorAll(".tab-content");
+
+        buttons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                buttons.forEach(b => b.classList.remove("active"));
+                tabs.forEach(t => t.classList.remove("active"));
+                btn.classList.add("active");
+                document.getElementById(btn.dataset.tab).classList.add("active");
+            });
+        });
+    </script>
+
+</body>
+
+</html>
