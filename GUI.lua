@@ -11,11 +11,11 @@ function GUI.Manager:add(element, ...)
     end
 end
 
-function GUI.Manager:removeAll(name)
+function GUI.Manager:delAll(name)
     self.groups[name] = nil
 end
 
-function GUI.Manager:removeIf(name, predicate)
+function GUI.Manager:delIf(name, predicate)
     local group = self.groups[name]
     if not group or type(predicate) ~= "function" then return end
 
@@ -128,12 +128,8 @@ function GUI.Base:new(mon)
         Base_Back = mon.getBackgroundColor(),
         Base_Text = mon.getTextColor(),
         -- label --
-        back = mon.getBackgroundColor(),
-        text = mon.getTextColor(),
-        -- frame --
-        frame = colors.gray,
-        frame_text = colors.white,
-        frame_back = colors.black,
+        back = nil,
+        text = nil,
         -- buttons --
         true_Bt = colors.green,
         locked_Bt = colors.red,
@@ -144,6 +140,9 @@ function GUI.Base:new(mon)
         free_Pb = colors.gray,
         false_Pb = colors.red,
     }
+
+    self.colors.back = self.colors.Base_Back
+    self.colors.text = self.colors.Base_Text
     return self
 end
 
