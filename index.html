@@ -36,7 +36,6 @@
             color: #eee;
         }
 
-
         code:not(pre code) {
             background: var(--code);
             font-family: monospace;
@@ -69,7 +68,6 @@
             /* на сколько пикселей отступ от верха */
             height: fit-content;
         }
-
 
         .tab-button {
             padding: 10px;
@@ -132,11 +130,8 @@
 </head>
 
 <body>
-
     <h1>GUI Lib для CC: Tweaked</h1>
-
     <div class="tab-container">
-
         <div class="tab-buttons">
             <button class="tab-button active" data-tab="general">1. Общая информация</button>
             <button class="tab-button" data-tab="manager">2. Manager</button>
@@ -144,16 +139,11 @@
             <button class="tab-button" data-tab="Label">4. Label</button>
             <button class="tab-button" data-tab="Frame">5. Frame</button>
             <button class="tab-button" data-tab="Button">6. Button</button>
-            <button class="tab-button" data-tab="CheckBox">7. Check Box</button>
-            <button class="tab-button" data-tab="RadioButton">8. Radio Button</button>
-            <button class="tab-button" data-tab="ProgressBar">9. Progress Bar</button>
-            <button class="tab-button" data-tab="TextInput">10. Text Input</button>
-            <button class="tab-button" data-tab="TextArea">11. Text Area</button>
+            <button class="tab-button" data-tab="CheckBox_and_RadioButton">7. Check Box and Radio Button</button>
+            <button class="tab-button" data-tab="ProgressBar">8. Progress Bar</button>
+            <button class="tab-button" data-tab="TextInput_and_TextArea">9. Text Input and Text Area</button>
         </div>
-
-
-
-        <div class="tab-content  active " id="general">
+        <div class="tab-content   " id="general">
             <div class="component">
                 <h2><code>Начало</code> </h2>
                 <p>Данная <strong>библиотека</strong> создана для создания различных интерфейсов с помощью
@@ -184,12 +174,10 @@
                     благами библиотеки. Все модули, предоставляемые библиотекой, отображаются в боковой панели.</p>
             </div>
         </div>
-
         <div class="tab-content" id="manager">
             <div class="component">
                 <h1><code>GUI.Manager</code></h1>
                 <p>Данный класс позваляет работать сразу с несколькими обьектами добавляя их группы</p>
-
                 <table class="method-table">
                     <thead>
                         <tr>
@@ -239,7 +227,6 @@
                     <li>... - одна и более групп в которые вы хотите добавить element</li>
                 </ul>
                 <p>Пример: </p>
-
                 <pre><code>-- создаем объект типа Label
 local Label = {...}
 
@@ -259,9 +246,7 @@ local Label = {свойства, ...} -- троиточие, есть списо
                     <li>nameGroup - имя группы, что вы хотите удалить</li>
                 </ul>
                 <p>Пример: </p>
-
                 <pre><code>GUI.Manager:delAll("base") -- удаляем всю группу base</code></pre>
-
             </div>
             <div class="component" id="delIf">
                 <p>Удалить элементы группы по определенным условиям, которые вы укажите.</p>
@@ -332,13 +317,10 @@ GUI.Manager:setProperty("base", "locked", true)</code></pre>
 end</code></pre>
             </div>
         </div>
-
         <div class="tab-content" id="Base">
-
             <div class="component">
                 <h1><code>GUI.Base</code></h1>
                 <p>Базовый класс, в которм хранатся базовые цвета для элементов</p>
-
                 <table class="method-table">
                     <thead>
                         <tr>
@@ -408,15 +390,12 @@ end</code></pre>
                     </tbody>
                 </table>
             </div>
-
         </div>
-
         <div class="tab-content " id="Label">
             <div class="component">
                 <h1><code>GUI.Label(mon, pos, text, align, ...)</code></h1>
                 <p>обьект для отображения различной текстовой информации как горизонтально, так и вертикально. имеется
                     поддержка<code>\n</code></p>
-
                 <p>Описание:</p>
                 <ul>
                     <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
@@ -434,7 +413,6 @@ end</code></pre>
                     </ul>
                     <li>... - одна и более групп в которые вы хотите добавить element</li>
                 </ul>
-
                 <table class="method-table">
                     <thead>
                         <tr>
@@ -472,12 +450,10 @@ Label:print()</code></pre>
 
             </div>
         </div>
-
         <div class="tab-content " id="Frame">
             <div class="component">
                 <h1><code>GUI.Frame(mon, column, row, Labels, ...)</code></h1>
                 <p>Рамки, таблици, и всё такое. если в column\row указать одно значение то будет линия</p>
-
                 <p>Описание:</p>
                 <ul>
                     <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
@@ -486,7 +462,6 @@ Label:print()</code></pre>
                     <li>Labels - названия для ячеек</li>
                     <li>... - одна и более групп в которые вы хотите добавить element</li>
                 </ul>
-
                 <table class="method-table">
                     <thead>
                         <tr>
@@ -506,7 +481,6 @@ Label:print()</code></pre>
                 <p>отобразить объект.</p>
                 <code>GUI.Frame:print()</code>
                 <p>Пример: </p>
-
                 <pre><code>-- таблица со всеми вариантами названия ячеек
 local Frame = gui.Frame(term, { 1, 14, 27, 40, 53, 66 }, { 1, 14, 27, 40 },
     {
@@ -520,7 +494,6 @@ Label:print()</code></pre>
                 <img src="./img/Frame_1.png" alt="Frame_1" width="500px">
             </div>
         </div>
-
         <div class="tab-content " id="Button">
             <div class="component">
                 <h1><code>GUI.Button(mon, pos, text, align, func, ...)</code></h1>
@@ -544,11 +517,10 @@ Label:print()</code></pre>
                     <li>func - функция, выпалняемая при нажатии по кнопке</li>
                     <li>... - одна и более групп в которые вы хотите добавить element</li>
                 </ul>
-
                 <table class="method-table">
                     <thead>
                         <tr>
-                            <th>общие свойства</th>
+                            <th>общие свойства у button, CheckBox, RadioButton и Progress Bar</th>
                             <th>значение</th>
                             <th>описание</th>
                         </tr>
@@ -569,10 +541,8 @@ Label:print()</code></pre>
                             <td class="method-desc">передаваемя функция</td>
                             <td>функция которая будет выпалнятся при активации обьекта. (когда checked = true) </td>
                         </tr>
-
                     </tbody>
                 </table>
-
                 <table class="method-table">
                     <thead>
                         <tr>
@@ -598,7 +568,7 @@ Label:print()</code></pre>
                 <p>Пример: </p>
 
                 <pre><code> -- создаем кнопку 
-local Button = gui.Button(term, { 5, 5 }, "text" {1})
+local Button = gui.Button(term, { 5, 5 }, "text", {1})
 
 -- создаем цикл на проверку нажатия 
 while true do
@@ -606,10 +576,19 @@ while true do
     Button:onClick(side,x,y)
 end
 </code></pre>
+
+                <pre><code> -- можно заблакировать кнопку, чтобы проверка на нажатия не срабатывала 
+Button.locked = true
+</code></pre>
+            </div>
+            <div class="component" id="print_cb">
+                <p>проверка на нажатие.</p>
+                <code>GUI.Button:onClick(mon, x, y)</code>
+                <p>Пример: </p>
                 <pre><code> -- можно создаем несколько кнопок 
-local Button_1 = gui.Button(term, { 5, 5 }, "text" {1},nil,"base")
-local Button_2 = gui.Button(term, { 5, 5 }, "text" {1},nil,"base")
-local Button_3 = gui.Button(term, { 5, 5 }, "text" {1},nil,"base")
+local Button_1 = gui.Button(term, { 5, 5 }, "text", { 1, 1 },nil,"base")
+local Button_2 = gui.Button(term, { 5, 5 }, "text", { 1, 1 },nil,"base")
+local Button_3 = gui.Button(term, { 5, 5 }, "text", { 1, 1 },nil,"base")
 
 -- создаем цикл на проверку нажатия всех кнопок
 while true do
@@ -617,38 +596,294 @@ while true do
     gui.Manager:callAll("base", "onClick", side, x, y)
 end
 </code></pre>
-                <pre><code> -- можно заблакировать кнопку, чтобы проверка на нажатия не срабатывала 
-Button_1.locked = true
+            </div>
+        </div>
+        <div class="tab-content active" id="CheckBox_and_RadioButton">
+            <div class="component">
+                <h1><code>GUI.CheckBox(mon, pos, text, align, func, ...)</code></h1>
+                <p>тоже самое что чек боксы на сайтах. можете также ддобавить надписи к ним</p>
+
+                <h1><code>GUI.RadioButton(mon, pos, text, align, func, ...)</code></h1>
+                <p>БУКВАЛЬНО тоже самое что и CheckBox, за одним исключением. в ... первое имя, это будет группа для
+                    чекбоксов (и только для них), последующие это буду именя для групп GUI.Manager. А также если
+                    несколько радио кнопок обьеденить в одну группу, то при нажатии по одному все остальные в группе
+                    отключаются. другими словами, может быть октивна только одна радио кнопка в группе </p>
+                <p>Описание:</p>
+                <ul>
+                    <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
+                    <li>pos - позиция чекбокса</li>
+                    <li>text - - текст чекбокса, не обязательна</li>
+                    <li>align - с какйо сторы будет текст от чекбокса, 1 - справа, 2 - слева</li>
+                    <li>func - функция, выпалняемая при нажатии по чекбоксу</li>
+                    <li>... - одна и более групп в которые вы хотите добавить element (у RadioButton первое имя в ...
+                        это названия для групировки радио кнопок в одну группу. не в GUI.Manager)</li>
+
+                </ul>
+            </div>
+
+            <div class="component">
+                <table class="method-table">
+                    <thead>
+                        <tr>
+                            <th>Метод</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="method-name"> <a href="#print_cb"><code>:print()</code></a></td>
+                            <td class="method-desc">функция для отображения объекта.</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"> <a href="#onClick_cb"><code>:onClick(mon, x, y)</code></a></td>
+                            <td class="method-desc">меняет состояние тригера на выкл\вкл</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"><code>:swichLock()</code></td>
+                            <td class="method-desc"> меняеть параметр locked противоположные. всё, а вы что думали?</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="component" id="print_cb">
+                <p>отобразить объект.</p>
+                <code>GUI.CheckBox:print()</code>
+                <code>GUI.RadioButton:print()</code>
+                <p>Пример: </p>
+
+                <pre><code> -- создаем кнопку 
+local CheckBox = gui.CheckBox(term, { 5, 5 }, "text", 1, nil, "base")
+local RadioButton = gui.RadioButton(term, { 5, 5 }, "text", 1, nil, nil, "base")
+
+-- создаем цикл на проверку нажатия 
+while true do
+    local _, side, x, y = os.pullEvent("monitor_touch")
+    GUI.Manager:callAll("base", "onClick", side, x, y)
+end
+</code></pre>
+                </code></pre>
+            </div>
+            <div class="component" id="onClick_cb">
+                <p>проверка на нажатие.</p>
+                <code>GUI.CheckBox:onClick(mon, x, y )</code>
+                <code>GUI.RadioButton:onClick(mon, x, y )</code>
+                <p>Пример: </p>
+                <pre><code> -- можно создаем несколько тригеров 
+local CheckBox_1 = gui.CheckBox(term, { 5, 5 }, "text", 1, nil, "base")
+local CheckBox_2 = gui.CheckBox(term, { 5, 5 }, "text", 1, nil, "base")
+local CheckBox_3 = gui.CheckBox(term, { 5, 5 }, "text", 1, nil, "base")
+
+-- или
+local RadioButton_1 = gui.RadioButton(term, { 5, 5 }, "text", 1, nil, "gr_1", "base")
+local RadioButton_2 = gui.RadioButton(term, { 5, 5 }, "text", 1, nil, "gr_1", "base")
+local RadioButton_3 = gui.RadioButton(term, { 5, 5 }, "text", 1, nil, "gr_1", "base")
+
+-- создаем цикл на проверку нажатия всех тригеров 
+while true do
+    local _, side, x, y = os.pullEvent("monitor_touch")
+    gui.Manager:callAll("base", "onClick", side, x, y)
+end
 </code></pre>
             </div>
         </div>
-    </div>
-    <div class="tab-content" id="CheckBox">
-        <h2>Check Box</h2>
-        <p>Описание компонента CheckBox...</p>
-    </div>
-    <div class="tab-content" id="RadioButton">
-        <h2>Radio Button</h2>
-        <p>Описание компонента RadioButton...</p>
-    </div>
-    <div class="tab-content" id="ProgressBar">
-        <h2>Progress Bar</h2>
-        <p>Описание компонента ProgressBar...</p>
-    </div>
-    <div class="tab-content" id="TextInput">
-        <h2>Text Input</h2>
-        <p>Описание компонента TextInput...</p>
-    </div>
-    <div class="tab-content" id="TextArea">
-        <h2>Text Area</h2>
-        <p>Описание компонента TextArea...</p>
-    </div>
-    </div>
 
+        <div class="tab-content" id="ProgressBar">
+            <div class="component">
+                <h1><code>GUI.ProgressBar(mon, pos, val, align, func, ...)</code></h1>
+                <p>знаете что такое полоса загрузки? это оно самое. с помощью этого обьекта можно отображать обьем
+                    емкостей любых веществ. либо для управление чего то путем перемещения рукой\мышкой</p>
+                <p>Описание:</p>
+                <ul>
+                    <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
+                    <li>pos - позиция ProgressBar</li>
+                    <ul>
+                        <li>если aling 1 или 2 - pos равен (x1, x2, y)</li>
+                        <li>если aling 3 или 4 - pos равен (x, y1, y2)</li>
+                    </ul>
+                    <li>val - текст кнопки, не обязательна. если не указывать (поставить nil) то значения будут братся
+                        из позиций </li>
+                    <ul>
+                        <p>aling - направление для отображения полоски</p>
+                        <li>1 - слева на право</li>
+                        <li>2 - справа на лево</li>
+                        <li>3 - сверху вниз</li>
+                        <li>4 - снизу верх</li>
+                    </ul>
+                    <li>func - функция, выпалняемая при изминении значения</li>
+                    <li>... - одна и более групп в которые вы хотите добавить element</li>
+                </ul>
+            </div>
+            <div class="component">
+                <table class="method-table">
+                    <thead>
+                        <tr>
+                            <th>Метод</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="method-name"> <a href="#print_pb"><code>:print()</code></a></td>
+                            <td class="method-desc">функция для отображения объекта.</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"> <a href="#onClick_pb"><code>:onClick(mon, x, y)</code></a></td>
+                            <td class="method-desc">меняет состояние тригера на выкл\вкл</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"><code>:swichLock()</code></td>
+                            <td class="method-desc"> меняеть параметр locked противоположные. всё, а вы что думали?</td>
+                        </tr>
+
+                        <tr>
+                            <td class="method-name"><a href="setVal"><code>:setVal(val)</code></a></td>
+                            <td class="method-desc">установить текущее значение</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"><a href="setVal"><code>:setMaxVal(val)</code></a></td>
+                            <td class="method-desc">установить максимальное значение</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"><a href="setVal"></a><code>:setMinVal(val)</code></a></td>
+                            <td class="method-desc"> установить минимальное значение</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="component" id="print_pb">
+                <p>проверка на нажатие.</p>
+                <code>GUI.ProgressBar:print( )</code>
+                <p>Пример: </p>
+                <pre><code>local ProgressBar = gui.ProgressBar(term, { 5, 10, 5 }, nil, 1, nil, "base") 
+
+while true do
+    local _, side, x, y = os.pullEvent("monitor_touch")
+    ProgressBar:onClick(side, x, y)
+end
+</code></pre>
+            </div>
+            <div class="component" id="onClick_pb">
+                <p>проверка на нажатие.</p>
+                <code>GUI.ProgressBar:onClick(mon, x, y )</code>
+                <p>Пример: </p>
+                <pre><code> -- можно создаем несколько  
+local ProgressBar_1 = gui.ProgressBar(term, { 5, 10, 5 }, nil, 1, nil, "base") 
+local ProgressBar_2 = gui.ProgressBar(term, { 5, 10, 6 }, nil, 1, nil, "base") 
+local ProgressBar_3 = gui.ProgressBar(term, { 5, 10, 7 }, nil, 1, nil, "base") 
+
+-- создаем цикл на проверку нажатия  
+while true do
+    local _, side, x, y = os.pullEvent("monitor_touch")
+    gui.Manager:callAll("base", "onClick", side, x, y)
+end
+</code></pre>
+            </div>
+            <div class="component" id="setVal">
+                <p>проверка на нажатие.</p>
+                <code>GUI.ProgressBar:setVal(val)</code>
+                <code>GUI.ProgressBar:setMaxVal(val)</code>
+                <code>GUI.ProgressBar:setMinVal(val)</code>
+                <p>Пример: </p>
+                <pre><code>local ProgressBar = gui.ProgressBar(term, { 5, 10, 5 }, { 0, 10, 2 }, 1, nil, "base")
+
+-- устанавливаем другие значения 
+ProgressBar:setVal(50)
+ProgressBar:setMaxVal(100)
+ProgressBar:setMinVal(-100)</code></pre>
+            </div>
+        </div>
+
+        <div class="tab-content" id="TextInput_and_TextArea">
+            <div class="component">
+                <h1><code>GUI.TextInput(mon, pos, text, ..)</code></h1>
+                <h1><code>GUI.TextArea(mon, pos, text, ..)</code></h1>
+
+                <p>элемент для печатанья текста</p>
+
+                <p>Описание:</p>
+                <ul>
+                    <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
+                    <li>pos - позиция элемента (x1, x2, y). у TextArea -> (x1, y1, x2, y2)</li>
+                    <li>text - начальные текст</li>
+                    <li>... - одна и более групп в которые вы хотите добавить element</li>
+                </ul>
+            </div>
+            <div class="component">
+                <table class="method-table">
+                    <thead>
+                        <tr>
+                            <th>Метод</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="method-name"> <a href="#print_tx"><code>:print(text)</code></a></td>
+                            <td class="method-desc">функция для отображения объекта. </td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"> <a href="#clear_tx"><code>:clear()</code></a></td>
+                            <td class="method-desc">очистить элемент от текста</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"> <a href="#onClick_tx"><code>:onClick(mon, x, y)</code></a></td>
+                            <td class="method-desc">дабы начать печатат ьв жлемент, нужно на него нажать</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"><a href="#keyPress"><code>:keyPress(key)</code></a></td>
+                            <td class="method-desc">функция для ввода одной буквы</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="component" id="print_tx">
+                <p>проверка на нажатие.</p>
+                <code>GUI.ProgressBar:print( )</code>
+                <p>Пример: </p>
+                <pre><code>local TextInput = gui.TextInput(term, { 5, 10, 5 }, "base text", "base") 
+local TextArea = gui.TextArea(term, { 5, 10, 5, 10 }, "base text", "base") 
+
+gui.Manager:callAll("base", "print")
+-- или
+TextInput:print()
+TextArea:print()
+
+</code></pre>
+            </div>
+            <div class="component" id="onClick_tx">
+                <p>ввод текста.</p>
+                <code>GUI.ProgressBar:onClick(mon, x, y )</code>
+                <p>Пример: </p>
+                <pre><code> -- можно создаем несколько  
+local TextInput_1 = gui.TextInput(term, { 5, 10, 5 }, "baset text 1", "base") 
+local TextInput_2 = gui.TextInput(term, { 5, 10, 6 }, "baset text 2", "base") 
+local TextInput_3 = gui.TextInput(term, { 5, 10, 7 }, "baset text 3", "base") 
+
+-- создаем цикл на проверку нажатия  
+while true do
+    local _, side, x, y = os.pullEvent("monitor_touch")
+    gui.Manager:callAll("base", "onClick", side, x, y)
+end
+
+-- а также цикл на то чтобы печатать текст с клавиатуры, если вы в терминале. на мониторе с виртуальной клавиатуры
+
+while true do
+    local _, value = os.pullEvent()
+    if event == "char" or event == "key" then
+        gui.Manager:callAll("base", "keyPress", value)
+    end
+end
+</code></pre>
+            </div>
+<p> в будущем появистя проект Virtual keyboard </p>
+        </div>
+
+
+    </div>
     <script>
         const buttons = document.querySelectorAll(".tab-button");
         const tabs = document.querySelectorAll(".tab-content");
-
         buttons.forEach(btn => {
             btn.addEventListener("click", () => {
                 buttons.forEach(b => b.classList.remove("active"));
@@ -658,8 +893,6 @@ Button_1.locked = true
             });
         });
     </script>
-
 </body>
-
 
 </html>
