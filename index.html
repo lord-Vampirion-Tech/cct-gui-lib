@@ -151,9 +151,13 @@
             <button class="tab-button" data-tab="TextArea">11. Text Area</button>
         </div>
 
+git add .
+git commit -m "обновление"
+git push
+
         <div class="tab-content  active " id="general">
             <div class="component">
-                <h2>Начало </h2>
+                <h2><code>Начало</code> </h2>
                 <p>Данная <strong>библиотека</strong> создана для создания различных интерфейсов с помощью
                     <code>ui</code>
                     элементов для мода <code>CC:Tweaked</code>.
@@ -342,20 +346,24 @@ end</code></pre>
                         <tr>
                             <th>свойства</th>
                             <th>значение</th>
+                            <th>описание</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td class="method-name"><code>Base_Back</code></td>
                             <td class="method-desc">mon.getTextColor()</td>
+                            <td rowspan="2">получают цвета экрана (фон и текст)</td>
                         </tr>
                         <tr>
                             <td class="method-name"><code>Base_Text</code></td>
                             <td class="method-desc">mon.getBackgroundColor()</td>
+
                         </tr>
                         <tr>
                             <td class="method-name"><code>back</code></td>
                             <td class="method-desc">Base_Back</td>
+                            <td rowspan="9">цвета</td>
                         </tr>
                         <tr>
                             <td class="method-name"><code>text</code></td>
@@ -388,6 +396,16 @@ end</code></pre>
                         <tr>
                             <td class="method-name"><code>false_Pb</code></td>
                             <td class="method-desc">colors.red</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"><code>self.visible</code></td>
+                            <td class="method-desc">true</td>
+                            <td>отвечает за отображение элемента</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"><code>self.owner</code></td>
+                            <td class="method-desc"> nil</td>
+                            <td>отвечает за наследования обьектами цвета</td>
                         </tr>
                     </tbody>
                 </table>
@@ -532,6 +550,34 @@ Label:print()</code></pre>
                 <table class="method-table">
                     <thead>
                         <tr>
+                            <th>общие свойства</th>
+                            <th>значение</th>
+                            <th>описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="method-name"><code>locked</code></td>
+                            <td class="method-desc">false</td>
+                            <td>отвечает за блакировку взаимодействия с элементов, как графически так и програмно</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"><code>checked</code></td>
+                            <td class="method-desc">false</td>
+                            <td>отвечает показывает взаимодействие с кнопкой</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name"><code>func</code></td>
+                            <td class="method-desc">передаваемя функция</td>
+                            <td>функция которая будет выпалнятся при активации обьекта. (когда checked = true) </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+
+                <table class="method-table">
+                    <thead>
+                        <tr>
                             <th>Метод</th>
                             <th>Описание</th>
                         </tr>
@@ -554,16 +600,28 @@ Label:print()</code></pre>
                 <p>Пример: </p>
 
                 <pre><code> -- создаем кнопку 
-local Button = gui.Button(term, { 5, 5 }, "text" {1},
-    {
-        { "1-text", { 1, 1 } }, { "4-text", { 1, 2 } }, { "7|text", { 1, 3 } }, { "10text", { 1, 4 } }, nil,
-        { "2-text", { 2, 1 } }, { "5-text", { 2, 2 } }, { "8|text", { 2, 3 } }, { "11text", { 2, 4 } }, nil,
-        { "3-text", { 3, 1 } }, { "6-text", { 3, 2 } }, { "9|text", { 3, 3 } }, { "12text", { 3, 4 } }, nil,
-    }, "base"
-)
+local Button = gui.Button(term, { 5, 5 }, "text" {1})
 
-Label:print()</code></pre>
-                <img src="./img/Frame_1.png" alt="Frame_1" width="500px">
+-- создаем цикл на проверку нажатия 
+while true do
+    local _, side, x, y = os.pullEvent("monitor_touch")
+    Button:onClick(side,x,y)
+end
+</code></pre>
+                <pre><code> -- можно создаем несколько кнопок 
+local Button_1 = gui.Button(term, { 5, 5 }, "text" {1},nil,"base")
+local Button_2 = gui.Button(term, { 5, 5 }, "text" {1},nil,"base")
+local Button_3 = gui.Button(term, { 5, 5 }, "text" {1},nil,"base")
+
+-- создаем цикл на проверку нажатия всех кнопок
+while true do
+    local _, side, x, y = os.pullEvent("monitor_touch")
+    gui.Manager:callAll("base", "onClick", side, x, y)
+end
+</code></pre>
+                <pre><code> -- можно заблакировать кнопку, чтобы проверка на нажатия не срабатывала 
+Button_1.locked = true
+</code></pre>
             </div>
         </div>
     </div>
