@@ -1,56 +1,47 @@
-local GUI = {}
-GUI.Manager = { groups = {} }
+local gui = {}
 
-function GUI.Manager:add(element, ...)
-    for i = 1, select("#", ...) do
-        local name = select(i, ...)
-        if not self.groups[name] then
-            self.groups[name] = {}
-        end
-        table.insert(self.groups[name], element)
-    end
-end
+gui.Manager = {
+    obj = {},
+    groups = {}
+}
+gui.defColor = {
+    B_Back = colors.black, -- базовый цвет
+    B_Text = colors.white, -- базовый цвет
+    -- label
+    l_back = colors.gray,
+    l_text = colors.white,
 
-function GUI.Manager:delAll(name)
-    self.groups[name] = nil
-end
+    -- frame
+    f_back = colors.black,
+    f_text = colors.white,
+    f_frame_back = colors.gray,
+    f_frame_text = colors.white,
 
-function GUI.Manager:delIf(name, predicate)
-    local group = self.groups[name]
-    if not group or type(predicate) ~= "function" then return end
+    ---- triggers
+    tg_base_back = colors.gray,
+    tg_base_text = colors.white,
+    tg_active_back = colors.green,
+    tg_active_text = colors.black,
+    tg_locked_back = colors.red,
+    tg_locked_text = colors.yellow,
 
-    local i = 1
-    while i <= #group do
-        if predicate(group[i]) then
-            table.remove(group, i)
-        else
-            i = i + 1
-        end
-    end
-end
+    ---- progress bar
+    r_back = colors.gray,
+    r_used = colors.green,
+    r_locked = colors.red,
+    r_dot = colors.white,
 
-function GUI.Manager:setColors(name, colors)
-    local group = self.groups[name]
-    if not group or type(colors) ~= "table" then return end
-
-    for _, element in ipairs(group) do
-        if type(element.colors) == "table" then
-            for k, v in pairs(colors) do
-                element.colors[k] = v
-            end
-        end
-    end
-end
-
-function GUI.Manager:setProperty(name, prop, value)
-    local group = self.groups[name]
-    if not group then return end
-    for _, el in ipairs(group) do
-        el[prop] = value
-    end
-end
-
-function GUI.Manager:callAll(name, action, ...)
+    -- text area
+    t_base_back = colors.gray,
+    t_base_text = colors.lightGray,
+    t_locked_back = colors.red,
+    t_locked_text = colors.black,
+    t_active_back = colors.gray,
+    t_active_text = colors.white,
+    t_dot = colors.white,
+}
+------------------------------------
+function gui.Manager:callAll(name, action, ...)
     local group = self.groups[name]
     if not group then return end
 
@@ -72,44 +63,57 @@ function GUI.Manager:callAll(name, action, ...)
     end
 end
 
-math.checkRange = function(x, min, max)
-    if x then
-        return (x >= min and x <= max) and x or
-            error(("\nthe number is out of bounds [%d,%d] (received %s)"):format(min, max, x), 2)
-    else
-        error("\n elemetn is nil", 2)
-    end
+function gui.Manager:get(name)
+    return self.obj[name] or nil
 end
 
-math.round = function(x)
-    if type(x) == "number" then
-        return (x % 1 >= 0.5) and math.ceil(x) or math.floor(x)
-    elseif type(x) == "table" then
-        local r = {}
-        for i, v in ipairs(x) do
-            r[i] = (type(v) == "number") and ((v % 1 >= 0.5) and math.ceil(v) or math.floor(v)) or v
+------------------------------------
+
+math.round = function(val)
+    return (val % 1 >= 0.5) and math.ceil(val) or math.floor(val)
+end
+
+function createClass(base)
+    local cls = {}
+    cls.__index = cls
+    cls.super = base
+
+    function cls:new(...)
+        local instance = setmetatable({}, cls)
+        if instance.init then
+            instance:init(...)
         end
-        return r
+        return instance
     end
-    return x
-end
 
-function Write(mon, pos, text)
-    local x, y = pos[1], pos[2]
-    for line in tostring(text):gmatch("[^\n]+") do
-        mon.setCursorPos(x, y)
-        mon.write(line)
-        y = y + 1
-    end
-end
-
-local function createClass()
-    return setmetatable({}, {
-        __index = GUI.Base,
-        __call = function(cls, ...)
-            return cls:new(...)
+    setmetatable(cls, {
+        __index = base,
+        __call = function(c, ...)
+            return c:new(...)
         end
     })
+
+    return cls
+end
+
+function Write(mon, pos, text, align)
+    local align = align or 1
+
+    if align == 1 then
+        mon.setCursorPos(pos[1], pos[2])
+        mon.write(text)
+    elseif align == 2 then
+        for i = 1, #text, 1 do
+            mon.setCursorPos(pos[1], pos[2] + i - 1)
+            mon.write(text:sub(i, i))
+        end
+    end
+end
+
+function gui.setcolors(colorsTable)
+    for key, value in pairs(colorsTable) do
+        gui.defColor[key] = value
+    end
 end
 
 local function safeCall(fn, self)
@@ -118,232 +122,222 @@ local function safeCall(fn, self)
     if not ok then pcall(fn) end
 end
 
-GUI.Base = createClass()
-function GUI.Base:new(mon)
-    local self = setmetatable({}, { __index = GUI.Base })
-
-    local mon = mon or term
-    self.colors = {
-        -- mon --
-        Base_Back = mon.getBackgroundColor(),
-        Base_Text = mon.getTextColor(),
-        -- label --
-        back = nil,
-        text = nil,
-        -- buttons --
-        true_Bt = colors.green,
-        locked_Bt = colors.red,
-        idle_Bt = colors.gray,
-        -- progress bar --
-        used_Pb = colors.green,
-        dot_Pb = colors.white,
-        free_Pb = colors.gray,
-        false_Pb = colors.red,
-    }
-
-    self.colors.back = self.colors.Base_Back
-    self.colors.text = self.colors.Base_Text
-    return self
-end
-
-function GUI.Base:setMonColor(text, back)
-    self.mon.setTextColor(text)
-    self.mon.setBackgroundColor(back)
-end
-
-function GUI.Base:setColor(text, back)
-    self.colors.text = text or self.colors.text
-    self.colors.back = back or self.colors.back
-
-    if self.mon then
-        self.mon.setTextColor(self.colors.text)
-        self.mon.setBackgroundColor(self.colors.back)
+local function setColors(table, colorsTable)
+    for key, value in pairs(colorsTable) do
+        if table[key] then
+            table[key] = value
+        end
     end
 end
 
--- === Label ===
-GUI.Label = createClass()
-function GUI.Label:new(mon, pos, text, align, ...)
-    local self = setmetatable(GUI.Base:new(mon),
-        { __index = GUI.Label })
-    self.type = "Label"
-
-    self.visible = true
+------------------------------------
+gui.Base = createClass()
+function gui.Base:init(mon, pos, owner)
     self.mon = mon or term
     self.pos = pos or { 1, 1 }
-    self.text = text or " "
-    self.oldText = self.text
+    self.type = "Base"
 
-    self.align = align and {
-        math.checkRange(align[1], 1, 3),
-        math.checkRange(align[2], 1, 2),
-    } or { 1, 1 }
+    self.visible = true
+    self.owner = owner or nil
+end
 
-    self.owner = nil
-    if ... then GUI.Manager:add(self, ...) end
+function gui.Base:add(name, ...)
+    if type(name) == "string" then
+        if gui.Manager.obj[name] then
+            error("GUI object with name { " .. name .. " } already exists.", 2)
+        end
+        gui.Manager.obj[name] = self
+    else
+        table.insert({ ... }, 1, name)
+    end
+
+    for i = 1, select("#", ...) do
+        local groupname = select(i, ...)
+        if type(groupname) == "string" then
+            gui.Manager.groups[groupname] = gui.Manager.groups[groupname] or {}
+            table.insert(gui.Manager.groups[groupname], self)
+        end
+    end
     return self
 end
 
-function GUI.Label:print(text)
-    if not self.visible then return end
-
-    self:setColor(
-        self.owner and self.owner.colors.text or self.colors.text,
-        self.owner and self.owner.colors.back or self.colors.back
-    )
-
-    local x, y = self.pos[1], self.pos[2]
-
-    local function alignPos(len)
-        return self.align[1] == 2 and math.round(x - len / 2)
-            or self.align[1] == 3 and x - len + 1
-            or x
-    end
-
-    self.text = text or self.text
-
-    if self.oldText ~= self.text then
-        local oldLen = #self.oldText or 0
-        if self.align[2] == 1 then
-            Write(self.mon, { alignPos(oldLen), y }, (" "):rep(oldLen))
-        else
-            local alignedY = self.align[1] == 2 and math.round(y - oldLen / 2)
-                or self.align[1] == 3 and y - oldLen + 1
-                or y
-            for i = 0, oldLen - 1 do
-                Write(self.mon, { x, alignedY + i }, " ")
-            end
-        end
-    end
-
-    if self.align[2] == 1 then
-        Write(self.mon, { alignPos(#self.text), y }, self.text)
-    else
-        local alignedY = self.align[1] == 2 and math.round(y - #self.text / 2)
-            or self.align[1] == 3 and y - #self.text + 1
-            or y
-        for i = 1, #self.text do
-            Write(self.mon, { x, alignedY + i - 1 }, self.text:sub(i, i))
-        end
-    end
-
-    self.oldText = self.text
-
-    self:setMonColor(
-        self.owner and self.owner.colors.Base_Text or self.colors.Base_Text,
-        self.owner and self.owner.colors.Base_Back or self.colors.Base_Back
-    )
+function gui.Base:setproperty(prop, val)
+    self[prop] = val
+    return self
 end
 
--- === Frame ===
-GUI.Frame = createClass()
-function GUI.Frame:new(mon, column, row, Labels, ...)
-    local self   = setmetatable(GUI.Base(mon), { __index = GUI.Frame })
-    self.type    = "Frame"
+function gui.Base:setFunc(func)
+    if type(func) == "function" then
+        self.func = func
+    end
+    return self
+end
 
-    self.visible = true
-    self.mon     = mon or term
-    self.row     = row or { 2, 5, 10, 18 }
-    self.column  = column or { 2, 5, 10, 18 }
+function gui.Base:setMonColor(back, text)
+    if text then self.mon.setTextColor(text) end
+    if back then self.mon.setBackgroundColor(back) end
+end
 
-    table.sort(self.row)
+function gui.Base:print()
+    Write(self.mon, self.pos, "lol")
+end
+
+gui.Label = createClass(gui.Base)
+function gui.Label:init(mon, pos, value, align, owner)
+    gui.Label.super.init(self, mon, pos, owner)
+
+    self.type = "Label"
+    self.value = value
+    self.align = align or { 1, 1 }
+
+    local function al(axis)
+        return (self.align[1] == 3) and (axis - #tostring(self.value[1]) + 1) or
+            (self.align[1] == 2) and math.round(axis - #tostring(self.value[1]) / 2) or
+            axis
+    end
+
+    self.pos[1] = self.align[2] == 1 and al(self.pos[1]) or self.pos[1]
+    self.pos[2] = self.align[2] == 2 and al(self.pos[2]) or self.pos[2]
+
+    self.colors = {
+        back = gui.defColor.l_back,
+        text = gui.defColor.l_text
+    }
+end
+
+function gui.Label:print()
+    if not self.visible then return end
+    if self.owner then setColors(self.colors, self.owner.colors) end
+    self:setMonColor(self.colors.back, self.colors.text)
+    Write(self.mon, self.pos, tostring(self.value[1]), self.align[2])
+    self:setMonColor(gui.defColor.B_Back, gui.defColor.B_Text)
+end
+
+gui.Table = createClass(gui.Base)
+function gui.Table:init(mon, column, row, name, owner)
+    gui.Table.super.init(self, mon, { x = row[1] or 1, y = column[1] or 1 }, owner)
+    self.type   = "Table"
+    self.char   = { c = "#", v = "|", h = "-" }
+
+    self.column = column or { 1, 3, 5 }
+    self.row    = row or { 1, 3, 5 }
+
     table.sort(self.column)
+    table.sort(self.row)
 
-    self.Labels = {}
-    self.Text = {}
-    if Labels then
-        for row = 1, #self.row - 1 do
-            for col = 1, #self.column - 1 do
-                local i = (row - 1) * (#self.column - 1) + col
-                if Labels[i] then
-                    local h, v
-                    if Labels[i][2] then
-                        h, v = Labels[i][2][1], Labels[i][2][2]
-                    else
-                        h, v = 1, 1
-                    end
+    self.labels = {}
 
-                    local c1, c2 = self.column[col], self.column[col + 1]
-                    local r1, r2 = self.row[row], self.row[row + 1]
+    self.colors = {
+        back = gui.defColor.f_back,
+        text = gui.defColor.f_text,
+        f_back = gui.defColor.f_frame_back,
+        f_text = gui.defColor.f_frame_text,
+    }
 
-                    local lbl_x = (v <= 2)
-                        and (h == 1 and c1 + 2 or h == 2 and math.round((c1 + c2) / 2) or c2 - 2)
-                        or (v == 3 and c1 or c2)
+    if name then
+        for r = 1, #self.row - 1 do
+            for c = 1, #self.column - 1 do
+                local i = (r - 1) * (#self.column - 1) + c
 
-                    local lbl_y = (v == 1 and r1) or (v == 2 and r2)
-                        or (h == 1 and r1 + 2 or h == 2 and math.round((r1 + r2) / 2) or r2 - 2)
+                if name[i] then
+                    local h, v = name[i][2] and name[i][2][1] or 1, name[i][2] and name[i][2][2] or 1
 
-                    self.Text[i] = Labels[i][1]
-                    self.Labels[i] = GUI.Label(self.mon, { lbl_x, lbl_y }, self.Text[i],
+                    local c1, c2 = self.column[c], self.column[c + 1]
+                    local r1, r2 = self.row[r], self.row[r + 1]
+
+                    local x = (v == 3 and c1) or (v > 3 and c2) or
+                        (h == 1 and c1 + 2) or (h == 2 and math.round((c1 + c2) / 2)) or (c2 - 2)
+                    local y = (v == 1 and r1) or (v == 2 and r2) or
+                        (h == 1 and r1 + 2) or (h == 2 and math.round((r1 + r2) / 2)) or (r2 - 2)
+
+                    self.labels[i] = gui.Label(self.mon, { x, y }, { "+" .. name[i][1] .. "+" },
                         { h, (v <= 2) and 1 or 2 })
-                    self.Labels[i].owner = self
+                    self.labels[i].colors = { back = self.colors.f_back, text = self.colors.f_text }
                 end
             end
         end
     end
-    self.owner = nil
-    if ... then GUI.Manager:add(self, ...) end
-    return self
 end
 
-function GUI.Frame:print()
+function gui.Table:print()
     if not self.visible then return end
+    if self.owner then setColors(self.colors, self.owner.colors) end
+    self:setMonColor(self.colors.back)
 
-    self:setColor(
-        self.owner == nil and self.colors.text or self.owner.colors.text,
-        self.owner == nil and self.colors.back or self.owner.colors.back
-    )
-
-    local rowSet, colSet = {}, {}
-    for _, y in ipairs(self.row) do rowSet[y] = true end
-    for _, x in ipairs(self.column) do colSet[x] = true end
-
-    for y = self.row[1], self.row[#self.row] do
-        for x = self.column[1], self.column[#self.column] do
-            Write(self.mon, { x, y },
-                (
-                    rowSet[y] and colSet[x]) and "+"
-                or rowSet[y] and "-"
-                or colSet[x] and "|"
-                or " "
-            )
-        end
-    end
-    for i = 1, (#self.row - 1) * (#self.column - 1) do
-        if self.Labels[i] then
-            self.Labels[i].text = "+" .. self.Text[i] .. "+"
-            self.Labels[i]:print()
+    for c = self.column[1], self.column[#self.column], 1 do
+        for r = self.row[1], self.row[#self.row], 1 do
+            Write(self.mon, { c, r }, " ")
         end
     end
 
-    self:setMonColor(
-        self.owner == nil and self.colors.Base_Text or self.owner.colors.Base_Text,
-        self.owner == nil and self.colors.Base_Back or self.owner.colors.Base_Back
-    )
+    self:setMonColor(self.colors.f_back, self.colors.f_text)
+
+    for c = self.column[1], self.column[#self.column], 1 do
+        for _, r in pairs(self.row) do
+            Write(self.mon, { c, r }, self.char.h)
+        end
+    end
+
+    for r = self.row[1], self.row[#self.row], 1 do
+        for _, c in pairs(self.column) do
+            Write(self.mon, { c, r }, self.char.v)
+        end
+    end
+
+    for _, c in pairs(self.column) do
+        for _, r in pairs(self.row) do
+            Write(self.mon, { c, r }, self.char.c)
+        end
+    end
+
+    for _, v in pairs(self.labels) do
+        v:print()
+    end
+
+    self:setMonColor(gui.defColor.B_Back, gui.defColor.B_Text)
 end
 
--- === Button ===
-GUI.Button = createClass()
-function GUI.Button:new(mon, pos, text, align, func, ...)
-    local self   = setmetatable(GUI.Base:new(mon), { __index = GUI.Button })
-    self.type    = "Button"
+gui.Frame = createClass(gui.Table)
+function gui.Frame:init(mon, pos, name, align)
+    gui.Frame.super.init(self, mon, { pos[1], pos[3] }, { pos[2], pos[4] }, { name, align })
 
-    self.visible = true
-    self.mon     = mon
-    self.monId   = (mon == term) and "term" or peripheral.getName(mon)
-    self.pos     = pos or { 1, 1 }
-    self.text    = text or nil
-    self.align   = align or { 1, 1 }
+    self.type = "Frame"
+end
 
-    self.locked  = false
-    self.checked = false
+local function actionColor(self)
+    return {
+        (self.locked and self.colors.locked_back) or
+        (self.active and self.colors.active_back) or
+        self.colors.back,
+        (self.locked and self.colors.locked_text) or
+        (self.active and self.colors.active_text) or
+        self.colors.text
+    }
+end
 
-    self.func    = func
-    self.offset  = { left = 0, right = 0, up = 0, down = 0 }
+local function actionText(obg)
+    return ((obg.align[1] == 1) and (obg.char[obg.active and 1 or 2]) or
+        (obg.align[1] == 2) and (obg.char[obg.active and 1 or 2] .. " " .. obg.text) or
+        (obg.align[1] == 3) and (obg.text .. " " .. obg.char[obg.active and 1 or 2]) or
+        (obg.align[1] == 4) and (obg.text))
+end
+
+gui.Button = createClass(gui.Base)
+function gui.Button:init(mon, pos, text, align, func, owner)
+    gui.Button.super.init(self, mon, pos, owner)
+    self.type   = "Button"
+
+    self.align  = align or { 1, 1 }
+    self.text   = text or " "
+
+    self.func   = func or nil
+    self.locked = false
+    self.active = false
+
+    self.offset = { left = 0, right = 0, up = 0, down = 0 }
 
     if type(self.align[2]) == "number" then
-        local o = self.align[2]
-        self.offset = { left = o, right = o, up = o, down = o }
+        self.offset = { left = self.align[2], right = self.align[2], up = self.align[2], down = self.align[2] }
     elseif type(self.align[2]) == "table" then
         local a = self.align[2]
         if #a == 2 then
@@ -353,570 +347,315 @@ function GUI.Button:new(mon, pos, text, align, func, ...)
         end
     end
 
-    if self.align[1] == 1 then
-        self.offset.right = self.offset.right + #self.text - 1
-    elseif self.align[1] == 2 then
-        self.offset.left = self.offset.left + math.floor(#self.text / 2)
-        self.offset.right = self.offset.right + math.ceil(#self.text / 2) - 1
-    elseif self.align[1] == 3 then
-        self.offset.left = self.offset.left + #self.text - 1
-    end
+    self.offset.right = self.offset.right + #self.text - 1
 
-    self.Label       = GUI.Label(self.mon, { self.pos[1], self.pos[2] }, self.text, { self.align[1], 1 })
-    self.Label.owner = self
+    self.colors = {
+        back = gui.defColor.tg_base_back,
+        text = gui.defColor.tg_base_text,
+        active_back = gui.defColor.tg_active_back,
+        active_text = gui.defColor.tg_active_text,
+        locked_back = gui.defColor.tg_locked_back,
+        locked_text = gui.defColor.tg_locked_text,
+    }
 
-    self.colors.back = self.colors.idle_Bt
-    self.owner       = nil
-    if ... then GUI.Manager:add(self, ...) end
-    return self
+    self.label = gui.Label(self.mon, self.pos, { self.text }, { self.align[1], 1 })
+    self.label.colors = { table.unpack(actionColor(self)) }
 end
 
-function GUI.Button:print()
+function gui.Button:print()
     if not self.visible then return end
 
-    self:setColor(
-        self.owner == nil and self.colors.text or self.owner.colors.text,
-        self.owner == nil and self.colors.back or self.owner.colors.back
-    )
+    if self.owner then setColors(self.colors, self.owner.colors) end
+    if self.char then self.label.value = { actionText(self) } end
+    self:setMonColor(table.unpack(actionColor(self)))
 
     for i = 0, self.offset.up + self.offset.down, 1 do
         Write(self.mon, { self.pos[1] - self.offset.left, self.pos[2] - self.offset.up + i },
             (" "):rep(self.offset.left + self.offset.right + 1))
     end
-    self.Label:print()
 
-    self:setMonColor(
-        self.owner == nil and self.colors.Base_Text or self.owner.colors.Base_Text,
-        self.owner == nil and self.colors.Base_Back or self.owner.colors.Base_Back
-    )
+    self.label:print()
+    self:setMonColor(gui.defColor.B_Back, gui.defColor.B_Text)
 end
 
-function GUI.Button:onClick(mon, x, y)
+function gui.Button:onClick(mon, x, y)
     if
-        not self.locked and mon == self.monId
+        not self.locked and mon == self.mon
         and x >= self.pos[1] - self.offset.left
         and x <= self.pos[1] + self.offset.right
         and y >= self.pos[2] - self.offset.up
         and y <= self.pos[2] + self.offset.down
     then
-        self.colors.back = self.colors.true_Bt
+        self.active = true
         self:print()
         safeCall(self.func, self)
         sleep(0.1)
-        self.colors.back = self.colors.idle_Bt
+        self.active = false
         self:print()
     end
 end
 
--- === Check Box ===
-GUI.CheckBox = createClass()
-function GUI.CheckBox:new(mon, pos, text, align, func, ...)
-    local self   = setmetatable(GUI.Base:new(mon or term), { __index = GUI.CheckBox, })
-    self.type    = "CheckBox"
+gui.CheckBox = createClass(gui.Button)
+function gui.CheckBox:init(mon, pos, text, align, func, owner)
+    gui.CheckBox.super.init(self, mon, pos, text, align, func, owner)
+    self.type = "CheckBox"
 
-    self.visible = true
-    self.mon     = mon
-    self.monId   = (mon == term) and "term" or peripheral.getName(mon)
-    self.pos     = pos or { 1, 1 }
-    self.text    = text or nil
-    math.checkRange(align or 1, 1, 2)
-    self.align = align == 2 and 3 or 1
+    self.char = { "[x]", "[ ]" }
+    self.label.value = { actionText(self) }
 
-    self.locked = false
-    self.checked = false
-
-    self.isOn = { "[x]", "[ ]" }
-    self.func = func
-
-    if self.text then
-        self.Label = GUI.Label(self.mon,
-            { self.align == 1 and self.pos[1] + 3 or self.align == 3 and self.pos[1] - 1, self.pos[2] }, self.text,
-            { self.align, 1 })
-        self.Label.owner = self
+    if type(self.align[2]) == "number" then
+        self.offset = { left = self.align[2], right = self.align[2], up = self.align[2], down = self.align[2] }
+    elseif type(self.align[2]) == "table" then
+        local a = self.align[2]
+        if #a == 2 then
+            self.offset = {
+                left = a[1],
+                right = a[1],
+                up = a[2],
+                down = a[2]
+            }
+        elseif #a == 4 then
+            self.offset = {
+                left = a[1],
+                right = a[2],
+                up = a[3],
+                down = a[4]
+            }
+        end
     end
 
-    self.colors.back = self.colors.idle_Bt
-    self.owner = nil
-    if ... then
-        GUI.Manager:add(self, ...)
-    end
-    return self
+    self.pos[1] = self.align[1] == 2 and self.pos[1] + 1 or
+        self.align[1] == 3 and self.pos[1] + #self.label.value[1] / 2 - 1 or self.pos[1] - 1
+
+
+    self.offset.right = self.offset.right + #self.label.value[1] - 1
 end
 
-function GUI.CheckBox:swichLock()
-    self.locked = not self.locked
-    self:print()
-end
-
-function GUI.CheckBox:print()
-    if not self.visible then return end
-
-    self.colors.back = self.locked and self.colors.locked_Bt or
-        (self.checked and self.colors.true_Bt or self.colors.idle_Bt)
-
-    self:setColor(
-        self.owner == nil and self.colors.text or self.owner.colors.text,
-        self.owner == nil and self.colors.back or self.owner.colors.back
-    )
-
-    Write(self.mon, self.pos, self.checked and self.isOn[1] or self.isOn[2])
-    if self.Label then
-        self.Label.text = (self.align == 1 and " " .. self.text or self.align == 3 and self.text .. " ")
-        self.Label:print()
-    end
-
-    self:setMonColor(
-        self.owner == nil and self.colors.Base_Text or self.owner.colors.Base_Text,
-        self.owner == nil and self.colors.Base_Back or self.owner.colors.Base_Back
-    )
-end
-
-function GUI.CheckBox:onClick(mon, x, y)
-    local length = self.text and #self.text + 1 or 0
-    if not self.locked and mon == self.monId
-        and x >= (self.align == 1 and self.pos[1] or self.pos[1] - length)
-        and x <= (self.align == 1 and self.pos[1] + 2 + length or self.pos[1] + 2)
-        and y == self.pos[2]
+function gui.CheckBox:onClick(mon, x, y)
+    if
+        not self.locked and mon == self.mon
+        and x >= self.pos[1] - self.offset.left
+        and x <= self.pos[1] + self.offset.right
+        and y >= self.pos[2] - self.offset.up
+        and y <= self.pos[2] + self.offset.down
     then
-        self.checked = not self.checked
+        self.active = not self.active
+        self.label.value = { actionText(self) }
         self:print()
         safeCall(self.func, self)
     end
 end
 
--- === Radion Button ===
-GUI.RadioButton = createClass()
-GUI.RadioButton.groups = {}
-function GUI.RadioButton:new(mon, pos, text, align, func, ...)
-    local self = setmetatable(GUI.CheckBox:new(mon, pos, text, align, func, ...), { __index = GUI.RadioButton, })
-    self.type  = "RadioButton"
-    local name = { ... }
-    self.name  = name[1] or "default"
-    self.isOn  = { "{x}", "{ }" }
-    self.func  = func
+gui.RadioButton = createClass(gui.CheckBox)
+gui.RadioButton.groups = {}
+function gui.RadioButton:init(mon, pos, text, align, name, func)
+    gui.RadioButton.super.init(self, mon, pos, text, align, func)
+    self.char = { "{x}", "{ }" }
+    self.type = "RadioButton"
+    self.name = name or "base"
 
-    if self.text then
-        self.Label = GUI.Label(self.mon,
-            { self.align == 1 and self.pos[1] + 3 or self.align == 3 and self.pos[1] - 1, self.pos[2] }, self.text,
-            { self.align, 1 })
-        self.Label.owner = self
+    self.label.value = { actionText(self) }
+
+    if not self.groups[self.name] then
+        self.groups[self.name] = {}
     end
-
-    if not GUI.RadioButton.groups[self.name] then
-        GUI.RadioButton.groups[self.name] = {}
-    end
-    table.insert(GUI.RadioButton.groups[self.name], self)
-
-    self.colors.back = self.colors.idle_Bt
-    self.owner = nil
-
-    if ... then
-        GUI.Manager:add(self, self.name)
-    end
-    return self
+    table.insert(self.groups[self.name], self)
 end
 
-function GUI.RadioButton:print()
-    if not self.visible then return end
-
-    self.colors.back = self.locked and self.colors.locked_Bt or
-        (self.checked and self.colors.true_Bt or self.colors.idle_Bt)
-
-    self:setColor(
-        self.owner == nil and self.colors.text or self.owner.colors.text,
-        self.owner == nil and self.colors.back or self.owner.colors.back
-    )
-
-    Write(self.mon, self.pos, self.checked and self.isOn[1] or self.isOn[2])
-    if self.Label then
-        self.Label.text = (self.align == 1 and " " .. self.text or self.align == 3 and self.text .. " ")
-
-        self.Label:print()
-    end
-
-    self:setMonColor(
-        self.owner == nil and self.colors.Base_Text or self.owner.colors.Base_Text,
-        self.owner == nil and self.colors.Base_Back or self.owner.colors.Base_Back
-    )
-end
-
-function GUI.RadioButton:swichLock()
-    self.locked = not self.locked
-    self:print()
-end
-
-function GUI.RadioButton:onClick(mon, x, y)
-    local length = self.text and #self.text + 1 or 0
-
-    if not self.locked and mon == self.monId
-        and x >= (self.align == 1 and self.pos[1] or self.pos[1] - length)
-        and x <= (self.align == 1 and self.pos[1] + 2 + length or self.pos[1] + 2)
-        and y == self.pos[2]
+function gui.RadioButton:onClick(mon, x, y)
+    if
+        not self.locked and mon == self.mon
+        and x >= self.pos[1] - self.offset.left
+        and x <= self.pos[1] + self.offset.right
+        and y >= self.pos[2] - self.offset.up
+        and y <= self.pos[2] + self.offset.down
     then
-        for _, check in ipairs(GUI.RadioButton.groups[self.name]) do
-            if check.checked == true and check.locked == true then
+        for _, check in ipairs(gui.RadioButton.groups[self.name]) do
+            if check.active == true and check.locked == true then
                 return
             end
         end
 
+        for _, check in ipairs(gui.RadioButton.groups[self.name]) do
+            check.active = check.locked and check.active or false
+            check.label.value = { actionText(check) }
 
-        for _, check in ipairs(GUI.RadioButton.groups[self.name]) do
-            check.checked = check.locked and check.checked or false
             check:print()
         end
-
-        self.checked = true
+        self.active = true
+        self.label.value = { actionText(self) }
         self:print()
         safeCall(self.func, self)
     end
 end
 
--- === Progress Bar ===
-GUI.ProgressBar = createClass()
-function GUI.ProgressBar:new(mon, pos, val, align, func, ...)
-    local self   = setmetatable(GUI.Base:new(mon), { __index = GUI.ProgressBar })
-    self.type    = "ProgressBar"
-    self.visible = true
+gui.Range = createClass(gui.Base)
+function gui.Range:init(mon, pos, val, align, func, owner)
+    gui.Range.super.init(self, mon, pos, owner)
 
-    self.mon     = mon or term
-    self.monId   = (mon == term) and "term" or peripheral.getName(mon)
+    self.align = align or 1
+    self.val = val
 
-    ----------------------------------------------------------------
-    -- pos: { x1, x2, y }   для align=1,2  (горизонталь)
-    --      { x, y1, y2 }   для align=3,4  (вертикаль)
-    ----------------------------------------------------------------
-    self.pos     = pos or { 2, 12, 2 }
-    self.text    = text or nil
-    self.align   = math.checkRange(align or 1, 1, 4)
-    self.length  = (self.align <= 2) and math.abs(self.pos[2] - self.pos[1]) or math.abs(self.pos[3] - self.pos[2])
+    self.locked = false
+    self.func = false
 
-    self.locked  = false
-    self.val     = {}
-    if type(val) == "table" then
-        local min  = val[1] or 1
-        local max  = val[2] or (self.length + 1)
-        local curr = val[3] or min
+    self.length = self.pos[3] - 1
 
-        self.val   = { min, max, curr }
-    elseif type(val) == "number" then
-        self.val = {
-            1,
-            self.length + 1,
-            math.checkRange(val, 1, self.length + 1)
-        }
-    else
-        self.val = { 1, self.length + 1, 1 }
-    end
-
-    self.func = func
-    if ... then GUI.Manager:add(self, ...) end
-    return self
+    self.colors = {
+        back = gui.defColor.r_back,
+        used = gui.defColor.r_used,
+        locked = gui.defColor.r_locked,
+        dot = gui.defColor.r_dot,
+    }
 end
 
-function GUI.ProgressBar:swichLock()
-    self.locked = not self.locked
-    self:print()
-end
-
-function GUI.ProgressBar:print()
+function gui.Range:print()
     if not self.visible then return end
-
-    local target = self.mon or term
+    if self.owner then setColors(self.colors, self.owner.colors) end
     local old = term.current()
-    if self.mon ~= term then
-        term.redirect(target)
-    end
+    if self.mon ~= term then term.redirect(self.mon) end
+    self:setMonColor(self.colors.back, self.colors.text)
 
     local used = math.round((self.val[3] - self.val[1]) / (self.val[2] - self.val[1]) * self.length)
     local free = self.length - used
 
-    local lineUsed
-    local lineFree
-    local dot
+    local fillColor = self.locked and self.colors.locked or self.colors.used
+    local backColor = self.locked and self.colors.locked or self.colors.back
 
+    local n1, n2 = table.unpack(self.pos)
+    local len = self.length
+    local lineUsed, lineFree, dot
 
     if self.align == 1 then
-        lineUsed = { self.pos[1], self.pos[3], self.pos[1] + used, self.pos[3],
-            self.locked == false and self.colors.used_Pb or self.colors.false_Pb }
-        lineFree = { self.pos[1] + used, self.pos[3], self.pos[2], self.pos[3],
-            self.locked == false and self.colors.free_Pb or self.colors.false_Pb }
-        dot = { self.pos[1] + used, self.pos[3], self.colors.dot_Pb }
+        lineUsed = { n1, n2, n1 + used, n2, fillColor }
+        lineFree = { n1 + used, n2, n1 + len, n2, backColor }
+        dot = { n1 + used, n2, self.colors.dot }
     elseif self.align == 2 then
-        lineUsed = { self.pos[1], self.pos[3], self.pos[1] + free, self.pos[3],
-            self.locked == false and self.colors.free_Pb or self.colors.false_Pb }
-        lineFree = { self.pos[1] + free, self.pos[3], self.pos[2], self.pos[3],
-            self.locked == false and self.colors.used_Pb or self.colors.false_Pb }
-        dot = { self.pos[1] + free, self.pos[3], self.colors.dot_Pb }
+        lineUsed = { n1 + free, n2, n1 + len, n2, fillColor }
+        lineFree = { n1, n2, n1 + free, n2, backColor }
+        dot = { n1 + free, n2, self.colors.dot }
     elseif self.align == 3 then
-        lineUsed = { self.pos[1], self.pos[2], self.pos[1], self.pos[2] + free,
-            self.locked == false and self.colors.free_Pb or self.colors.false_Pb }
-        lineFree = { self.pos[1], self.pos[2] + free, self.pos[1], self.pos[3],
-            self.locked == false and self.colors.used_Pb or self.colors.false_Pb }
-        dot = { self.pos[1], self.pos[2] + free, self.colors.dot_Pb }
-    elseif self.align == 4 then
-        lineUsed = { self.pos[1], self.pos[2], self.pos[1], self.pos[2] + used,
-            self.locked == false and self.colors.used_Pb or self.colors.false_Pb }
-        lineFree = { self.pos[1], self.pos[2] + used, self.pos[1], self.pos[3],
-            self.locked == false and self.colors.free_Pb or self.colors.false_Pb }
-        dot = { self.pos[1], self.pos[2] + used, self.colors.dot_Pb }
-    end
-
-    paintutils.drawLine(lineUsed[1], lineUsed[2], lineUsed[3], lineUsed[4], lineUsed[5])
-    paintutils.drawLine(lineFree[1], lineFree[2], lineFree[3], lineFree[4], lineFree[5])
-    paintutils.drawPixel(dot[1], dot[2], dot[3])
-
-    self:setMonColor(
-        self.owner == nil and self.colors.Base_Text or self.owner.colors.Base_Text,
-        self.owner == nil and self.colors.Base_Back or self.owner.colors.Base_Back
-    )
-
-    term.redirect(old)
-end
-
-function GUI.ProgressBar:setVal(delta)
-    if not self.locked and type(delta) == "number" then
-        if delta >= self.val[1] and delta <= self.val[2] then
-            self.val[3] = delta
-            if self.func then
-                local ok = pcall(self.func, self)
-                if not ok then pcall(self.func) end
-            end
-            self:print()
-        end
-    end
-end
-
-function GUI.ProgressBar:setMaxVal(delta)
-    if not self.locked and type(delta) == "number" then
-        if delta >= self.val[3] then
-            self.val[2] = delta
-            if self.func then
-                local ok = pcall(self.func, self)
-                if not ok then pcall(self.func) end
-            end
-            self:print()
-        end
-    end
-end
-
-function GUI.ProgressBar:setMinVal(delta)
-    if not self.locked and type(delta) == "number" then
-        if delta <= self.val[3] then
-            self.val[1] = delta
-            if self.func then
-                local ok = pcall(self.func, self)
-                if not ok then pcall(self.func) end
-            end
-            self:print()
-        end
-    end
-end
-
-function GUI.ProgressBar:onClick(mon, x, y)
-    if self.locked or mon ~= self.monId then return end
-
-    if
-        (self.align == 1 or self.align == 2)
-        and x >= self.pos[1]
-        and x <= self.pos[2]
-        and y == self.pos[3]
-    then
-        local percent = (x - self.pos[1]) / self.length
-        if self.align == 2 then
-            percent = 1 - percent
-        end
-        self.val[3] = (math.round(self.val[1] + percent * (self.val[2] - self.val[1])))
-        if self.func then
-            local ok = pcall(self.func, self)
-            if not ok then pcall(self.func) end
-        end
-        self:print()
-    elseif
-        (self.align == 3 or self.align == 4)
-        and x == self.pos[1]
-        and y >= self.pos[2]
-        and y <= self.pos[3]
-    then
-        local percent = (self.align == 3)
-            and (1 - ((y - self.pos[2]) / self.length))
-            or ((y - self.pos[2]) / self.length)
-        self.val[3] = (math.round(self.val[1] + percent * (self.val[2] - self.val[1])))
-        if self.func then
-            local ok = pcall(self.func, self)
-            if not ok then pcall(self.func) end
-        end
-        self:print()
-    end
-end
-
--- === Text Input ===
-GUI.TextInput = createClass()
-function GUI.TextInput:new(mon, pos, text, ...)
-    local self       = setmetatable(GUI.Base:new(mon), { __index = GUI.TextInput })
-    self.type        = "TextInput"
-
-    self.visible     = true
-    self.mon         = mon
-    self.monId       = (mon == term) and "term" or peripheral.getName(mon)
-    self.pos         = pos or { 2, 12, 2 } -- x1, x2, y
-
-    self.maxLength   = self.pos[2] - self.pos[1] + 1
-    self.text        = tostring(text or "")
-    self.func        = nil
-
-    self.locked      = false
-    self.active      = false
-
-    self.colors.back = colors.gray
-    self.owner       = nil
-    self.Label       = GUI.Label:new(self.mon, { self.pos[1], self.pos[3] }, self.text, { 1, 1 })
-    self.Label.owner = self
-
-    if ... then GUI.Manager:add(self, ...) end
-    return self
-end
-
-function GUI.TextInput:clear()
-    self.text = ""
-    self:print()
-end
-
-function GUI.TextInput:print(text)
-    if not self.visible then return end
-    self.text = text or self.text
-
-    local target = self.mon or term
-    local old = term.current()
-    if self.mon ~= term then
-        term.redirect(target)
-    end
-
-    self:setColor(
-        self.owner == nil and self.colors.text or self.owner.colors.text,
-        self.owner == nil and self.colors.back or self.owner.colors.back
-    )
-
-    paintutils.drawLine(self.pos[1], self.pos[3], self.pos[2], self.pos[3],
-        self.owner == nil and self.colors.back or self.owner.colors.back)
-
-    self.Label:print(self.text)
-
-    if not self.locked and self.active and #self.text < self.maxLength then
-        paintutils.drawPixel(#self.text + self.pos[1], self.pos[3], colors.lightGray)
-    end
-
-
-    self:setMonColor(
-        self.owner == nil and self.colors.Base_Text or self.owner.colors.Base_Text,
-        self.owner == nil and self.colors.Base_Back or self.owner.colors.Base_Back
-    )
-
-    term.redirect(old)
-end
-
-function GUI.TextInput:onClick(mon, x, y)
-    if not self.locked and mon == self.monId
-        and x >= self.pos[1]
-        and x <= self.pos[2]
-        and y == self.pos[3]
-    then
-        self.active = true
-        self:print()
-        return true
+        lineUsed = { n1, n2, n1, n2 + used, fillColor }
+        lineFree = { n1, n2 + used, n1, n2 + len, backColor }
+        dot = { n1, n2 + used, self.colors.dot }
     else
-        self.active = false
-        self:print()
-        return false
+        lineUsed = { n1, n2 + free, n1, n2 + len, fillColor }
+        lineFree = { n1, n2, n1, n2 + free, backColor }
+        dot = { n1, n2 + free, self.colors.dot }
     end
+
+    paintutils.drawLine(table.unpack(lineUsed))
+    paintutils.drawLine(table.unpack(lineFree))
+    paintutils.drawPixel(table.unpack(dot))
+
+    self:setMonColor(gui.defColor.B_Back, gui.defColor.B_Text)
+    term.redirect(old)
 end
 
-function GUI.TextInput:keyPress(key)
-    if not self.active then return end
+function gui.Range:setVal(val)
+    if self.locked then return end
+    if val <= self.val[1] then val = self.val[1] end
+    if val >= self.val[2] then val = self.val[2] end
+    self.val[3] = math.round(val)
+end
 
-    if key == keys.backspace then
-        if #self.text + self.pos[1] > 2 then
-            self:print(self.text:sub(1, #self.text - 1))
+function gui.Range:setMinVal(val)
+    if self.locked then return end
+    if val >= self.val[3] then val = self.val[3] end
+    self.val[1] = val
+end
+
+function gui.Range:setMaxVal(val)
+    if self.locked then return end
+    if val <= self.val[3] then val = self.val[3] end
+    self.val[2] = val
+end
+
+function gui.Range:onClick(mon, x, y)
+    if
+        not self.locked and mon == self.mon
+    then
+        local n1, n2 = table.unpack(self.pos)
+        local len = self.length
+        if
+            (self.align == 1 or self.align == 2)
+            and x >= n1 and x <= n1 + len and y == n2
+        then
+            local percent = (x - self.pos[1]) / self.length
+            if self.align == 2 then percent = 1 - percent end
+            self:setVal((math.round(self.val[1] + percent * (self.val[2] - self.val[1]))))
+            safeCall(self, self.func)
+            self:print()
+        elseif
+            (self.align == 3 or self.align == 4)
+            and x == n1 and y >= n2 and y <= n2 + len
+        then
+            local percent = (self.align == 4) and (1 - ((y - self.pos[2]) / self.length)) or
+                ((y - self.pos[2]) / self.length)
+            self:setVal((math.round(self.val[1] + percent * (self.val[2] - self.val[1]))))
+            safeCall(self, self.func)
+            self:print()
         end
-    elseif key == keys.enter then
-        safeCall(self.func, self)
-    elseif type(key) == "string" and #key == 1 and #self.text < self.maxLength then
-        self:print(self.text .. key)
     end
 end
 
--- === Text Area ===
-GUI.TextArea = createClass()
-function GUI.TextArea:new(mon, pos, text, ...)
-    local self       = setmetatable(GUI.Base:new(mon), { __index = GUI.TextArea })
-    self.type        = "TextInput"
+gui.TextArea = createClass(gui.Base)
+function gui.TextArea:init(mon, pos, text, owner)
+    gui.TextArea.super.init(self, mon, pos, owner)
 
-    self.visible     = true
-    self.mon         = mon
-    self.monId       = (mon == term) and "term" or peripheral.getName(mon)
-    self.pos         = pos or { 2, 2, 12, 12 } -- x1, y1, x2, y2,
+    self.text = text or "qwe1213rty"
+    self.type = "TextArea"
+    self.func = nil
 
-    self.size        = { self.pos[3] + 1 - self.pos[1], self.pos[4] - self.pos[2] + 1 }
-    self.text        = tostring(text or "")
-    self.func        = nil
+    self.size = { self.pos[3] + 1 - self.pos[1], self.pos[4] - self.pos[2] + 1 }
 
-    self.locked      = false
-    self.active      = false
+    if #self.text > self.size[1] * self.size[2] then
+        self.text = self.text:sub(1, self.size[1] * self.size[2])
+    end
 
-    self.colors.back = colors.gray
-    self.owner       = nil
+    self.locked = false
+    self.active = false
 
-    if ... then GUI.Manager:add(self, ...) end
-    return self
+    self.colors = {
+        back = gui.defColor.t_base_back,
+        text = gui.defColor.t_base_text,
+        active_back = gui.defColor.t_active_back,
+        active_text = gui.defColor.t_active_text,
+        locked_back = gui.defColor.t_locked_back,
+        locked_text = gui.defColor.t_locked_text,
+        dot = gui.defColor.t_dot,
+    }
 end
 
-function GUI.TextArea:clear()
-    self.text = ""
-    self:print()
-end
-
--- Разбивает текст на ровные участки по interval символов
-local function wrapByChars(text, interval)
+local function wraryChars(text, interval)
     interval    = math.max(1, math.floor(interval or 1))
     text        = text or ""
     local parts = {}
     for i = 1, #text, interval do
         parts[#parts + 1] = text:sub(i, i + interval - 1)
     end
-    return parts -- возвращаем уже не одну строку, а массив строк
+    return parts
 end
 
-function GUI.TextArea:print(text)
+function gui.TextArea:print()
     if not self.visible then return end
-    self.text = text or self.text
-
-    local target = self.mon or term
+    if self.owner then setColors(self.colors, self.owner.colors) end
     local old = term.current()
-    if self.mon ~= term then
-        term.redirect(target)
-    end
+    if self.mon ~= term then term.redirect(self.mon) end
+    self:setMonColor(table.unpack(actionColor(self)))
 
-    -- 1) разбиваем на строки по ширине
-    local lines = wrapByChars(self.text, self.size[1])
-
-    -- 2) рисуем фон ровно в рамках area
-    self:setColor(
-        self.owner == nil and self.colors.text or self.owner.colors.text,
-        self.owner == nil and self.colors.back or self.owner.colors.back
-    )
+    local lines = wraryChars(self.text, self.size[1])
 
     local x1, y1, x2, y2 = table.unpack(self.pos)
-    paintutils.drawFilledBox(x1, y1, x2, y2, self.owner == nil and self.colors.back or self.owner.colors.back)
+    paintutils.drawFilledBox(x1, y1, x2, y2, self.colors.back)
 
-    -- 3) выводим текст **построчно**, не выходя за y2
     for i = 1, #lines do
         local lineY = y1 + i - 1
         if lineY > y2 then break end
-        -- обрежем строку по ширине на всякий случай
         local fragment = lines[i]:sub(1, self.size[1])
         Write(self.mon, { x1, lineY }, fragment)
     end
 
-    -- 4) рисуем курсор в нужном месте (как в предыдущем ответе)
     if not self.locked and self.active then
         local ci = math.min(math.max(#self.text + 1, 1), #self.text + 1)
         local width = self.size[1]
@@ -924,21 +663,16 @@ function GUI.TextArea:print(text)
         local col = (ci - 1) % width
         local cx, cy = x1 + col, y1 + row
         if cx <= x2 and cy <= y2 then
-            paintutils.drawPixel(cx, cy, colors.lightGray)
+            paintutils.drawPixel(cx, cy, self.colors.dot)
         end
     end
 
-    -- 5) сброс цвета
-    self:setMonColor(
-        self.owner == nil and self.colors.Base_Text or self.owner.colors.Base_Text,
-        self.owner == nil and self.colors.Base_Back or self.owner.colors.Base_Back
-    )
-
+    self:setMonColor(gui.defColor.B_Back, gui.defColor.B_Text)
     term.redirect(old)
 end
 
-function GUI.TextArea:onClick(mon, x, y)
-    if not self.locked and mon == self.monId
+function gui.TextArea:onClick(mon, x, y)
+    if not self.locked and mon == self.mon
         and x >= self.pos[1]
         and y >= self.pos[2]
         and x <= self.pos[3]
@@ -954,18 +688,38 @@ function GUI.TextArea:onClick(mon, x, y)
     end
 end
 
-function GUI.TextArea:keyPress(key)
-    if not self.active then return end
+function gui.TextArea:ketPress(key)
+    if not self.active and not self.locked then return end
 
     if key == keys.backspace then
         if #self.text + self.pos[1] > 2 then
-            self:print(self.text:sub(1, #self.text - 1))
+            self.text = self.text:sub(1, #self.text - 1)
+            self:print()
         end
     elseif key == keys.enter then
         safeCall(self.func, self)
     elseif type(key) == "string" and #key == 1 and #self.text < self.size[1] * self.size[2] then
-        self:print(self.text .. key)
+        self.text = self.text .. key
+        self:print()
     end
 end
 
-return GUI
+gui.TextInput = createClass(gui.TextArea)
+function gui.TextInput:init(mon, pos, text, owner)
+    pos[4] = pos[2]
+    gui.TextInput.super.init(self, mon, pos, text, owner)
+end
+
+-- Укороченные названия для удобства
+gui.M  = gui.Manager
+gui.L  = gui.Label
+gui.F  = gui.Frame
+gui.T  = gui.Table
+gui.B  = gui.Button
+gui.CB = gui.CheckBox
+gui.RB = gui.RadioButton
+gui.R  = gui.Range
+gui.TI = gui.TextInput
+gui.TA = gui.TextArea
+
+return gui
