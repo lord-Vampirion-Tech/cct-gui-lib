@@ -4,20 +4,64 @@
 <head>
     <meta charset="UTF-8">
     <title>Документация GUI</title>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <style>
         :root {
-            --code: #1d1d1d;
-            --block: #00ff00;
-            --block_border: #002e65;
-            --accent: #005f87;
+            --back: #24272c;
+            --back-2: #30353e;
+            --t-back: #282c34;
+            --t-back-2: #1f2229;
+
+            --border: #ffffff;
+
+            --code: #282c34;
+
+            --accent: #00b3ff;
+        }
+
+        * {
+            scroll-behavior: smooth;
+
+        }
+
+        html,
+        body {
+            color: var(--border);
+            font-size: 1.1em;
+        }
+
+        p {
+            text-align: justify;
+            margin: 20px;
+        }
+
+        a,
+        u {
+            text-decoration: none;
+        }
+
+        .img {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            flex-direction: row;
+
+        }
+
+        .img img {
+            width: 30%;
+            margin: 10px;
+            border: 3px solid var(--border)
         }
 
         body {
             font-family: sans-serif;
-            background-color: #f7f7f7;
-            color: #333;
+            background-color: var(--back);
             line-height: 1.6;
-            padding: 20px;
+
+            padding: 0 200px;
         }
 
         h1,
@@ -32,24 +76,21 @@
             padding: 10px;
             border-left: 5px solid var(--accent);
             overflow-x: auto;
-            border-radius: 10px;
             color: #eee;
         }
 
         code:not(pre code) {
             background: var(--code);
             font-family: monospace;
-            border-radius: 3px;
             padding: 4px;
             color: #eee;
         }
 
         .component {
-            background: #2b2b2b;
-            border-left: 5px solid #aaa;
+            background: var(--back-2);
+            border-left: 5px solid var(--border);
             padding: 4px 10px;
-            margin: 1em 0;
-            border-radius: 10px;
+            margin-bottom: 1em;
             color: #eee;
         }
 
@@ -60,34 +101,82 @@
         .tab-buttons {
             display: flex;
             flex-direction: column;
-            border-right: 2px solid var(--accent);
             padding-right: 10px;
             min-width: 200px;
             position: sticky;
             top: 20px;
-            /* на сколько пикселей отступ от верха */
             height: fit-content;
         }
+
+        .hr-text {
+            border: 0;
+            line-height: 1em;
+            position: relative;
+            text-align: center;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .hr-text::before {
+            content: "";
+            background: var(--border);
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+        }
+
+        .hr-text::after {
+            content: attr(data-content);
+            position: relative;
+            padding: 0 7px;
+            color: white;
+            background-color: var(--back);
+        }
+
+        .component .hr-text {
+            font-size: 50px;
+        }
+
+        .component .hr-text.h2 {
+            font-size: 30px;
+            color: var(--accent);
+        }
+
+        .component .hr-text::after {
+            background-color: var(--back-2);
+        }
+
+
 
         .tab-button {
             padding: 10px;
             cursor: pointer;
-            background: #ddd;
+            background: var(--back-2);
             border: none;
-            border-bottom: 1px solid #bbb;
-            text-align: left;
+            color: white;
+            text-align: start;
             font-weight: bold;
-            transition: background 0.2s;
+            transition: background 0.1s;
+        }
+
+        .tab-button:hover {
+            background: rgb(88, 88, 88);
         }
 
         .tab-button.active {
             background: var(--accent);
-            color: white;
+        }
+
+        .tab-buttons hr {
+            width: 100%;
+            border-color: var(--back-2);
         }
 
         .tab-content {
             display: none;
-            padding-left: 20px;
+            padding-left: 10px;
             flex: 1;
         }
 
@@ -95,325 +184,414 @@
             display: block;
         }
 
-        .method-table {
+        .table {
             width: 100%;
             border-collapse: collapse;
             margin: 1em 0;
             font-size: 0.95em;
-            background: white;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
-        .method-table th,
-        .method-table td {
-            border: 1px solid #ccc;
+        .table th,
+        .table td {
+            border: 4px solid var(--back-2);
             padding: 10px;
             text-align: left;
-        }
-
-        .method-table th {
-            background-color: #eee;
-            color: #222;
+            color: white;
             font-weight: bold;
         }
 
-        .method-name code {
-            font-weight: bold;
+        .table th {
+            background-color: var(--t-back-2);
+        }
+
+        .table td {
+            background-color: var(--t-back);
+        }
+
+        .name code {
+            font-size: 1.5em;
             color: var(--accent);
         }
 
-        .method-desc {
+        .desc {
             color: #444;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lua.min.js"></script>
+    <script>
+        hljs.highlightAll();  
+    </script>
+
 </head>
 
 <body>
     <h1>GUI Lib для CC: Tweaked</h1>
     <div class="tab-container">
         <div class="tab-buttons">
-            <button class="tab-button active" data-tab="general">1. Общая информация</button>
-            <button class="tab-button" data-tab="manager">2. Manager</button>
-            <button class="tab-button" data-tab="Base">3. Base</button>
-            <button class="tab-button" data-tab="Label">4. Label</button>
-            <button class="tab-button" data-tab="Frame">5. Frame</button>
-            <button class="tab-button" data-tab="Button">6. Button</button>
-            <button class="tab-button" data-tab="CheckBox_and_RadioButton">7. Check Box and Radio Button</button>
-            <button class="tab-button" data-tab="ProgressBar">8. Progress Bar</button>
-            <button class="tab-button" data-tab="TextInput_and_TextArea">9. Text Input and Text Area</button>
+            <button class="tab-button active" data-tab="base">Общая информация</button>
+            <hr class="hr-text" data-content="основные функции">
+            <button class="tab-button" data-tab="General">Общее</button>
+            <button class="tab-button" data-tab="Manager">Manager</button>
+            <hr class="hr-text" data-content="декарации">
+            <button class="tab-button" data-tab="Label">Label</button>
+            <button class="tab-button" data-tab="Frame">Frames</button>
+            <button class="tab-button" data-tab="Table">Table</button>
+            <hr class="hr-text" data-content="Тригеры">
+            <button class="tab-button" data-tab="Buttons">Button</button>
+            <button class="tab-button" data-tab="CheckBox">heck Box</button>
+            <button class="tab-button" data-tab="RadioButton">Radio Button</button>
+            <button class="tab-button" data-tab="Range">Range</button>
+            <hr class="hr-text" data-content="Текстовые зоны">
+            <button class="tab-button" data-tab="TextInput">Text Input</button>
+            <button class="tab-button" data-tab="TextArea">Text Area</button>
+            <p>GUI Dock's by Zif_Tech © 2025</p>
         </div>
-        <div class="tab-content active  " id="general">
+        <div class="tab-content" id="base">
             <div class="component">
-                <h2><code>Начало</code> </h2>
-                <p>Данная <strong>библиотека</strong> создана для создания различных интерфейсов с помощью
-                    <code>ui</code>
-                    элементов для мода <code>CC:Tweaked</code>.
-                    хотите иделать панель управления домом, фермами, реактором из модов в конце концов? это все
+                <hr class="hr-text" data-content="Общая информация">
+                <p>Данная библиотека предназначена для виузального управления вашими проектами или механизмами с помощью
+                    различных графических элементов.
+                    Библиотека дает вам возможность создавать уникальные интерфейсы для всего и вся.
+
+                    хотите зделать панель управления домом, фермами, реактором из модов в конце концов? это все
                     возможно.
-                    хотет
-                    сделать информациооное табло? тоже не проблема. написал все один раз и кайфуешь
+                    А может хотите информациооное табло? тоже не проблема. написал все один раз и кайфуешь
                 </p>
-                <p>Версия библиотеки является сырой, поэтому в ней еще могут быть ошибки. Вы можете сообщать обо всех
-                    них в
-                    канале Discord под ником Lord_Zif_Tech.</p>
-                <img src="./img/screen_1.png" alt="123" width="350px">
-                <img src="./img/screen_2.png" alt="123" width="350px">
-                <img src="./img/screen_3.png" alt="123" width="350px">
-                <img src="./img/screen_4.png" alt="123" width="350px">
-                <img src="./img/screen_5.png" alt="123" width="350px">
-                <img src="./img/screen_6.png" alt="123" width="350px">
-                <h2>Как начать ей пользоватся?</h2>
+                <div class="img">
+                    <img src="./img/screen_1.png" alt="123">
+                    <img src="./img/screen_2.png" alt="123">
+                    <img src="./img/screen_3.png" alt="123">
+                    <img src="./img/screen_4.png" alt="123">
+                    <img src="./img/screen_5.png" alt="123">
+                    <img src="./img/screen_6.png" alt="123">
+                </div>
+
+                <p>Если вы нашли ошибку, недачет или момент который можжет улучшить библиотеку для всех пишите сюда <a
+                        href="http://">Discord</a>. Мой ник Lord_Zif_Tech. </p>
+
+                <hr class="hr-text h2" data-content="Как начать ей пользоватся?">
                 <p>вставте вот эту ссылку в ваш терминал
-                    <code>wget https://raw.githubusercontent.com/lord-Vampirion-Tech/cct-gui-lib/main/GUI.lua GUI.lua</code>
-                    и библиотека установится сама с репозиторя Git Hub
-                    <code>https://github.com/lord-Vampirion-Tech/cct-gui-lib</code>
+                    <code>wget https://raw.githubusercontent.com/lord-Vampirion-Tech/cct-gui-lib/main/gui.lua gui.lua</code>
+                    и библиотека успешно установится с репозиторя Git Hub
+                    <code>https://github.com/lord-Vampirion-Tech/cct-gui-lib</code> к вам на устройство.
                 </p>
-                <p>в своей программе просто пропишите <code>local gui = dofile("GUI.lua")</code> и можете пользоватся
+                <p>в своей программе просто пропишите <code>local gui = dofile("gui.lua")</code> и можете пользоватся
                     всеми
                     благами библиотеки. Все модули, предоставляемые библиотекой, отображаются в боковой панели.</p>
             </div>
         </div>
-        <div class="tab-content" id="manager">
+        <div class="tab-content  " id="General">
             <div class="component">
-                <h1><code>GUI.Manager</code></h1>
-                <p>Данный класс позваляет работать сразу с несколькими обьектами добавляя их группы</p>
-                <table class="method-table">
+                <hr class="hr-text h2" data-content="Основные свойства и функции">
+                <p>есть свойства которые есть у всех объектов по стандарту. а также функции которые есть у всех
+                    объектов, но у каждого разное поведение</p>
+                <hr>
+                <h2>Свойства</h2>
+                <table class="table">
                     <thead>
                         <tr>
-                            <th>Метод</th>
-                            <th>Описание</th>
+                            <th style="width: 50%;">свойство</th>
+                            <th style="width: 50%;">описание</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="method-name"> <a href="#add"><code>:add(element, ...)</code></a></td>
-                            <td class="method-desc">Добавить элемент в одну или несколько групп.</td>
+                            <td class="name"><code>self.mon = mon or term</code></td>
+                            <td class="desc">монитор на котором будет отображатся объект</td>
                         </tr>
                         <tr>
-                            <td class="method-name"><a href="#delAll"><code>:delAll(nameGroup)</code></a></td>
-                            <td class="method-desc">Удалить все элементы из указанной группы.</td>
+                            <td class="name"> <code>self.pos = pos or {1, 1}</code></td>
+                            <td class="desc">позиция объекта на экране</td>
                         </tr>
                         <tr>
-                            <td class="method-name"><a href="#delIf"><code>:delIf(nameGroup, predicate)</code></a></td>
-                            <td class="method-desc">Удалить элементы из группы, если они соответствуют условию.</td>
+                            <td class="name"><code>self.type = "Base"</code></td>
+                            <td class="desc">тип объекта. полезно для массовой работы с объектами</td>
                         </tr>
                         <tr>
-                            <td class="method-name"><a href="#setColors"><code>:setColors(nameGroup, colors)</code></a>
-                            </td>
-                            <td class="method-desc">Установить цвета фона и текста для всех элементов в группе.</td>
+                            <td class="name"><code>self.visible = true</code></td>
+                            <td class="desc">тип объекта. полезно для массовой работы с объектами</td>
                         </tr>
                         <tr>
-                            <td class="method-name"><a
-                                    href="#setProperty"><code>:setProperty(nameGroup, prop, value)</code></a></td>
-                            <td class="method-desc">Изменить свойство у всех элементов группы.</td>
+                            <td class="name"><code>self.owner = owner or nil</code></td>
+                            <td class="desc">используется для наследования цветов между обьектами</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;">название</th>
+                            <th style="width: 50%;">значение</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="name"><code>B_Back</code></td>
+                            <td class="desc" style="background:#111111">colors.black</td>
                         </tr>
                         <tr>
-                            <td class="method-name"><a href="#callAll"><code>:callAll(nameGroup, action, ...)</code></a>
-                            </td>
-                            <td class="method-desc">Вызвать метод у всех элементов группы (например,
-                                <code>onClick</code>).
-                            </td>
+                            <td class="name"><code>B_Text</code></td>
+                            <td class="desc" style="background:#F0F0F0; color:black;">colors.white</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Label</th>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>l_back</code></td>
+                            <td class="desc" style="background:#4C4C4C; color:black;">colors.gray</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>l_text</code></td>
+                            <td class="desc" style="background:#F0F0F0; color:black;">colors.white</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Frame and Table</th>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>f_back</code></td>
+                            <td class="desc" style="background: #111111">colors.black</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>f_text</code></td>
+                            <td class="desc" style="background:#F0F0F0; color:black;">colors.white</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>f_frame_back</code></td>
+                            <td class="desc" style="background:#4C4C4C; color:black;">colors.gray</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>f_frame_text</code></td>
+                            <td class="desc" style="background:#F0F0F0; color:black;">colors.white</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Button, CheckBox, RadioButton</th>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>tg_base_back</code></td>
+                            <td class="desc" style="background:#4C4C4C; color:black;">colors.gray</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>tg_base_text</code></td>
+                            <td class="desc" style="background:#F0F0F0; color:black;">colors.white</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>tg_active_back</code></td>
+                            <td class="desc" style="background:#57A64E">colors.green</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>tg_active_text</code></td>
+                            <td class="desc" style="background:#111111">colors.black</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>tg_locked_back</code></td>
+                            <td class="desc" style="background:#CC4C4C">colors.red</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>tg_locked_text</code></td>
+                            <td class="desc" style="background:#DEDE6C; color:black;">colors.yellow</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Range</th>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>pb_back</code></td>
+                            <td class="desc" style="background:#4C4C4C; color:black;">colors.gray</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>pb_used</code></td>
+                            <td class="desc" style="background:#57A64E">colors.green</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>pb_locked</code></td>
+                            <td class="desc" style="background:#CC4C4C">colors.red</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>pb_dot</code></td>
+                            <td class="desc" style="background: #F0F0F0; color:black;">white</td>
+                        </tr>
+                        <tr>
+                            <th colspan="2">Text area and input</th>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>t_base_back</code></td>
+                            <td class="desc" style="background:#4C4C4C; color:black;">colors.gray</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>t_base_text</code></td>
+                            <td class="desc" style="background:#999999; color:black;">colors.lightGray</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>t_locked_back</code></td>
+                            <td class="desc" style="background:#CC4C4C">colors.red</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>t_locked_text</code></td>
+                            <td class="desc" style="background:#111111">colors.black</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>t_active_back</code></td>
+                            <td class="desc" style="background:#4C4C4C; color:black;">colors.gray</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>t_active_text</code></td>
+                            <td class="desc" style="background:#F0F0F0; color:black;">colors.white</td>
+                        </tr>
+                        <tr>
+                            <td class="name"><code>t_dot</code></td>
+                            <td class="desc" style="background:#F0F0F0; color:black;">colors.white</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <h2>методы</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;">название</th>
+                            <th style="width: 50%;">описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="name"> <a href="#print">
+                                    <code>:print()</code></a></td>
+                            <td class="desc">отобразить элемент на экране. А если какието параметры изменились то это
+                                его обновит</td>
+                        </tr>
+                        <tr>
+                            <td class="name"> <a href="#add">
+                                    <code>:add(name,...)</code></a></td>
+                            <td class="desc">добавить элемент в группу под определенным именем. если имя не нужно то
+                                передовать названия групп в таблице, иначе просто через запятую. тогда первй элемент
+                                будет именем объекта. имена не могут повтарятся</td>
+                        </tr>
+                        <tr>
+                            <td class="name"> <code>:setproperty(prop,val)</code> </td>
+                            <td class="desc">изменить какое нибуть свойство при создании объекта</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <h2>функции доступные в библиотеке бонусом</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;">название</th>
+                            <th style="width: 50%;">описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="name"> <a href="#Write">
+                                    <code>Write(mon, pos, text, align)</code></a></td>
+                            <td class="desc">ресует текст в данной позиции</td>
+                        </tr>
+                        <tr>
+                            <td class="name"> <a href="#gui.setcolors">
+                                    <code>gui.setcolors(colorsTable)</code></a></td>
+                            <td class="desc">заменить базовые цвета для всех элементов</td>
+                        </tr>
+                        <tr>
+                            <td class="name"> <code>math.round(val)</code> </td>
+                            <td class="desc">округляет число по правилам математики</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="component" id="Write">
+                <hr class="hr-text h2" data-content=" Write(mon,pos,text,align)">
+                <ul>
+                    <li>mon - мониторм где нарисовать текст</li>
+                    <li>pos - позиция где нарисовать текст</li>
+                    <li>text - то что нарисовать</li>
+                    <li>align - по умольчанию равно {1,1}. отвечает за то как нарисовать текст
+                        <ul>
+                            <li>align[2] - нарисовать текст горизонтально (1), или вертикально (2)</li>
+                            <li>align[1] - нарисовать текст относительно позиции слева (1), по середине (2), или слева
+                                (3) от позиции.
+                                (при align[2] = 2, align[1] работает вниз, по середние, в верх соответствено)
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <pre><code  class="language-lua">-- рисуем текст "lol" по X=1 и Y=1
+Write(term,{1,1},"lol")
+
+--можно выбрать ориентацию тексто около позиции
+Write(term,{1,1},"text!",{1,1}) -- справа    
+Write(term,{1,1},"text!",{2,1}) -- по середине
+Write(term,{1,1},"text!",{3,1}) -- сдева
+
+-- и также по вертикали
+Write(term,{1,1},"text!",{1,2}) -- снизу  
+Write(term,{1,1},"text!",{2,2}) -- по середине
+Write(term,{1,1},"text!",{3,2}) -- сверху
+</code></pre>
+            </div>
+            <div class="component" id="gui.setcolors">
+                <hr class="hr-text h2" data-content=" gui.setcolors(colorsTable)">
+                <ul>
+                    <li>colorsTable - таблица (ключ - значения) для замены базовы цветов для ВСЕХ объектов</li>
+                </ul>
+
+                <pre><code  class="language-lua">-- можно сделать чтоы базовый фон для все Label будет красным
+gui.setColor{
+    l_back = colord.red
+}
+
+-- или сразу несколько изменения
+gui.setColor{
+    l_text = colord.yellow,
+    f_text = colord.yellow,
+    tg_base_text = colord.yellow,
+    t_base_text  = colord.yellow,
+}
+</code></pre>
+            </div>
+        </div>
+
+
+        <div class="tab-content active" id="Manager">
+            <div class="component">
+                <hr class="hr-text h2" data-content="gui.Manager">
+                <p>gui.Manager - массив объектов объеденённых под общим именем. используется для массового влияние на
+                    обьекты</p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;">Метод</th>
+                            <th style="width: 50%;">Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="name"> <a href="#callAll"><code>:callAll(name, action, ...)</code></a></td>
+                            <td class="desc">вызвоть метод у определенной группы, и заадно передать в нее параметры</td>
+                        </tr>
+                        <tr>
+                            <td class="name"> <a href="#callAll"><code>:get(name)</code></a></td>
+                            <td class="desc">получить обьект по имени если такой существует</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div class="component" id="add">
-                <p>Добавить элемент в группу(ы).</p>
-                <code>GUI.Manager:add(element, ...)</code>
-                <p>Описание:</p>
-                <ul>
-                    <li>element - Это то, что вы хотите добавить в группу</li>
-                    <li>... - одна и более групп в которые вы хотите добавить element</li>
-                </ul>
-                <p>Пример: </p>
-                <pre><code>-- создаем объект типа Label
+                <p>полная запись функции</p>
+                <pre><code  class="language-lua">-- создаем объект типа Label
 local Label = {...}
 
 -- а затем добавляем его в группу base
 GUI.Manager:add(Label, "base")</code></pre>
-
-                <h4>доп. информациооное</h4>
-                <p>Каждый из обьектов библиотеки можно прям при его создании добавитть в группы</p>
-                <pre><code>-- покажем на примере Label
-local Label = {свойства, ...} -- троиточие, есть список групп</code></pre>
-            </div>
-            <div class="component" id="delAll">
-                <p>Удалить всю группу</p>
-                <code>GUI.Manager:delAll(nameGroup)</code>
-                <p>Описание:</p>
-                <ul>
-                    <li>nameGroup - имя группы, что вы хотите удалить</li>
-                </ul>
-                <p>Пример: </p>
-                <pre><code>GUI.Manager:delAll("base") -- удаляем всю группу base</code></pre>
-            </div>
-            <div class="component" id="delIf">
-                <p>Удалить элементы группы по определенным условиям, которые вы укажите.</p>
-                <code>GUI.Manager:delIf(nameGroup, predicate)</code>
-                <p>Описание:</p>
-                <ul>
-                    <li>nameGroup - имя группы, что вы хотите удалить</li>
-                    <li>predicate - условие, по которому будут отбиратся объекты</li>
-                </ul>
-                <p>Пример: </p>
-                <pre><code>-- пример удаления по типу
-GUI.Manager:delIf("base", function(e)
-    return e.type == "Button"
-end)</code></pre>
-            </div>
-            <div class="component" id="setColors">
-                <p>Установить цвет для элементов группы</p>
-                <code>GUI.Manager:setColors(nameGroup, colors)</code>
-                <p>Описание:</p>
-                <ul>
-                    <li>nameGroup - имя группы, что вы хотите удалить</li>
-                    <li>colors - цвета фона и текста</li>
-                </ul>
-                <p>Пример: </p>
-                <pre><code>GUI.Manager:setColors("base", {
-    back = colors.black,
-    text = colors.blue,
-})</code></pre>
-                <p>примечание: colors принемает 2 параметра, как указанно в примере (можно указать только один из них)
-                </p>
-            </div>
-            <div class="component" id="setProperty">
-                <p>Изменить своство у элементов группы по определенным условиям</p>
-                <code>GUI.Manager:setProperty(nameGroup, prop, value)</code>
-                <p>Описание:</p>
-                <ul>
-                    <li>nameGroup - имя группы, что вы хотите удалить</li>
-                    <li>prop - какое свойсвтво у объектов вы хотите поменять</li>
-                    <li>value - новое значение свойства</li>
-                </ul>
-                <pre><code>-- обьекты типа Button
-local Button_1 = {...}
-local Button_2 = {...}
-local Button_3 = {...}
-
--- добавляем Button's в группу base
-GUI.Manager:add(Button_1, "base") 
-GUI.Manager:add(Button_2, "base")
-GUI.Manager:add(Button_3, "base")
-
--- блокируем взаимодействие со всеми кнопками 
-GUI.Manager:setProperty("base", "locked", true)</code></pre>
-            </div>
-            <div class="component" id="callAll">
-                <p>Выполнить общий метод у элементов группы (лучше сделать проврку по типу)</p>
-                <code>GUI.Manager:callAll(nameGroup, action, ...)</code>
-                <p>Описание:</p>
-                <ul>
-                    <li>nameGroup - имя группы, что вы хотите удалить</li>
-                    <li>action - какой метод вы хотите вызвать у группы объектов</li>
-                    <li>... - параметры, передоваемые в этот метод</li>
-                </ul>
-                <pre><code>while true do
-    local _, side, x, y = os.pullEvent("monitor_touch")
-    
-    -- проверяем, кликнули ли по кнопке или нет
-    GUI.Manager:callAll("base", "onClick", side, x, y)
-end</code></pre>
+                <p>доп. информация</p>
             </div>
         </div>
-        <div class="tab-content" id="Base">
+        <div class="tab-content" id="Label">
             <div class="component">
-                <h1><code>GUI.Base</code></h1>
-                <p>Базовый класс, в которм хранатся базовые цвета для элементов</p>
-                <table class="method-table">
-                    <thead>
-                        <tr>
-                            <th>свойства</th>
-                            <th>значение</th>
-                            <th>описание</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="method-name"><code>Base_Back</code></td>
-                            <td class="method-desc">mon.getTextColor()</td>
-                            <td rowspan="2">получают цвета экрана (фон и текст)</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>Base_Text</code></td>
-                            <td class="method-desc">mon.getBackgroundColor()</td>
-
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>back</code></td>
-                            <td class="method-desc">Base_Back</td>
-                            <td rowspan="9">цвета</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>text</code></td>
-                            <td class="method-desc">Base_Text</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>true_Bt</code></td>
-                            <td class="method-desc">colors.green</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>locked_Bt</code></td>
-                            <td class="method-desc">colors.red</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>idle_Bt</code></td>
-                            <td class="method-desc">colors.gray</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>used_Pb</code></td>
-                            <td class="method-desc">colors.green</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>dot_Pb</code></td>
-                            <td class="method-desc">colors.white</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>free_Pb</code></td>
-                            <td class="method-desc">colors.gray</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>false_Pb</code></td>
-                            <td class="method-desc">colors.red</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>self.visible</code></td>
-                            <td class="method-desc">true</td>
-                            <td>отвечает за отображение элемента</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>self.owner</code></td>
-                            <td class="method-desc"> nil</td>
-                            <td>отвечает за наследования обьектами цвета</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="tab-content " id="Label">
-            <div class="component">
-                <h1><code>GUI.Label(mon, pos, text, align, ...)</code></h1>
-                <p>обьект для отображения различной текстовой информации как горизонтально, так и вертикально. имеется
-                    поддержка<code>\n</code></p>
-                <p>Описание:</p>
-                <ul>
-                    <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
-                    <li>pos - позиция на экране (x, y)</li>
-                    <li>text - тект для отображения</li>
-                    <li>align - способ отображения текста</li>
-                    <ul>
-                        <p>align[1] - отображение относительно координат pos</p>
-                        <li>1 - влево от pos (при align[2] = 2 вниз)</li>
-                        <li>2 - по серединет pos</li>
-                        <li>3 - вправо от pos (при align[2] = 2 верх)</li>
-                        <p>align[2]</p>
-                        <li>1 - горизонтально</li>
-                        <li>2 - вертикально</li>
-                    </ul>
-                    <li>... - одна и более групп в которые вы хотите добавить element</li>
-                </ul>
-                <table class="method-table">
+                <hr class="hr-text h2" data-content="Функция">
+                <p>описание</p>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Метод</th>
@@ -422,47 +600,27 @@ end</code></pre>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="method-name"> <a href="#print_l"><code>:print(text)</code></a></td>
-                            <td class="method-desc">функция для отображения объекта.</td>
+                            <td class="name"> <a href="#add"><code>метод</code></a></td>
+                            <td class="desc">описание метода</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="component" id="print_l">
-                <p>отобразить объект.</p>
-                <code>GUI.Label:print(text)</code>
-                <p>Описание:</p>
-                <ul>
-                    <li>text - задать текст для отображения</li>
-                </ul>
-                <p>Пример: </p>
+            <div class="component" id="add">
+                <p>полная запись функции</p>
+                <pre><code  class="language-lua">-- создаем объект типа Label
+local Label = {...}
 
-                <pre><code>-- создаем объект типа Label
-local Label = gui.Label(term, { 5, 5 }, "text", { 1, 1 }, "base")
-
--- term = терминал
--- { 5, 5 } = позиция
--- "text" = ну вы понялм
--- { 1, 1 } = отображение горизонтальное и влево от pos
--- "base" = группа в GUI.Manager (не обязательно)
-
-Label:print()</code></pre>
-
+-- а затем добавляем его в группу base
+GUI.Manager:add(Label, "base")</code></pre>
+                <p>доп. информация</p>
             </div>
         </div>
-        <div class="tab-content " id="Frame">
+        <div class="tab-content" id="Frame">
             <div class="component">
-                <h1><code>GUI.Frame(mon, column, row, Labels, ...)</code></h1>
-                <p>Рамки, таблици, и всё такое. если в column\row указать одно значение то будет линия</p>
-                <p>Описание:</p>
-                <ul>
-                    <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
-                    <li>column - список координат X колонок</li>
-                    <li>row - - список координат Y строк</li>
-                    <li>Labels - названия для ячеек</li>
-                    <li>... - одна и более групп в которые вы хотите добавить element</li>
-                </ul>
-                <table class="method-table">
+                <hr class="hr-text h2" data-content="Функция">
+                <p>описание</p>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Метод</th>
@@ -471,79 +629,27 @@ Label:print()</code></pre>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="method-name"> <a href="#print_f"><code>:print()</code></a></td>
-                            <td class="method-desc">функция для отображения объекта.</td>
+                            <td class="name"> <a href="#add"><code>метод</code></a></td>
+                            <td class="desc">описание метода</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="component" id="print_f">
-                <p>отобразить объект.</p>
-                <code>GUI.Frame:print()</code>
-                <p>Пример: </p>
-                <pre><code>-- таблица со всеми вариантами названия ячеек
-local Frame = gui.Frame(term, { 1, 14, 27, 40, 53, 66 }, { 1, 14, 27, 40 },
-    {
-        { "1-text", { 1, 1 } }, { "4-text", { 1, 2 } }, { "7|text", { 1, 3 } }, { "10text", { 1, 4 } }, nil,
-        { "2-text", { 2, 1 } }, { "5-text", { 2, 2 } }, { "8|text", { 2, 3 } }, { "11text", { 2, 4 } }, nil,
-        { "3-text", { 3, 1 } }, { "6-text", { 3, 2 } }, { "9|text", { 3, 3 } }, { "12text", { 3, 4 } }, nil,
-    }, "base"
-)
+            <div class="component" id="add">
+                <p>полная запись функции</p>
+                <pre><code  class="language-lua">-- создаем объект типа Label
+local Label = {...}
 
-Label:print()</code></pre>
-                <img src="./img/Frame_1.png" alt="Frame_1" width="500px">
+-- а затем добавляем его в группу base
+GUI.Manager:add(Label, "base")</code></pre>
+                <p>доп. информация</p>
             </div>
         </div>
-        <div class="tab-content " id="Button">
+        <div class="tab-content" id="Table">
             <div class="component">
-                <h1><code>GUI.Button(mon, pos, text, align, func, ...)</code></h1>
-                <p>кнопка, вы же знаете что такое кнопка? нет?кнопка область экрана для выполения каких либо функций</p>
-                <p>Описание:</p>
-                <ul>
-                    <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
-                    <li>pos - позиция кнопки</li>
-                    <li>text - - текст кнопки, не обязательна</li>
-                    <li>align - тоже что и в Label, но есть нюанс</li>
-                    <ul>
-                        <p>У align есть несколько вариаций</p>
-                        <li>align[1] это как у Label</li>
-                        <li>align[2] вот тут весело. тут может быть 1, 2 и 4 параметра</li>
-                        <li>если align[2], это 1 параметр то это расширение зоны кнопки на 1 симвл</li>
-                        <li>если align[2], это 2 параметра, то 1 это расширение в стороны, в 2 это расширение в верх\низ
-                        </li>
-                        <li>если align[2], это 4 параметра, то это расширения в каждую сторону по отдельности
-                            (лева,право,верх,низ)</li>
-                    </ul>
-                    <li>func - функция, выпалняемая при нажатии по кнопке</li>
-                    <li>... - одна и более групп в которые вы хотите добавить element</li>
-                </ul>
-                <table class="method-table">
-                    <thead>
-                        <tr>
-                            <th>общие свойства у button, CheckBox, RadioButton и Progress Bar</th>
-                            <th>значение</th>
-                            <th>описание</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="method-name"><code>locked</code></td>
-                            <td class="method-desc">false</td>
-                            <td>отвечает за блакировку взаимодействия с элементов, как графически так и програмно</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>checked</code></td>
-                            <td class="method-desc">false</td>
-                            <td>отвечает показывает взаимодействие с кнопкой</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>func</code></td>
-                            <td class="method-desc">передаваемя функция</td>
-                            <td>функция которая будет выпалнятся при активации обьекта. (когда checked = true) </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="method-table">
+                <hr class="hr-text h2" data-content="Функция">
+                <p>описание</p>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Метод</th>
@@ -552,77 +658,27 @@ Label:print()</code></pre>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="method-name"> <a href="#print_bt"><code>:print()</code></a></td>
-                            <td class="method-desc">функция для отображения объекта.</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"> <a href="#onClick_bt"><code>:onClick(mon, x, y)</code></a></td>
-                            <td class="method-desc">метод вызова функции при клике по экрану</td>
+                            <td class="name"> <a href="#add"><code>метод</code></a></td>
+                            <td class="desc">описание метода</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="component" id="print_bt">
-                <p>отобразить объект.</p>
-                <code>GUI.Button:print()</code>
-                <p>Пример: </p>
+            <div class="component" id="add">
+                <p>полная запись функции</p>
+                <pre><code  class="language-lua">-- создаем объект типа Label
+local Label = {...}
 
-                <pre><code> -- создаем кнопку 
-local Button = gui.Button(term, { 5, 5 }, "text", {1})
-
--- создаем цикл на проверку нажатия 
-while true do
-    local _, side, x, y = os.pullEvent("monitor_touch")
-    Button:onClick(side,x,y)
-end
-</code></pre>
-
-                <pre><code> -- можно заблакировать кнопку, чтобы проверка на нажатия не срабатывала 
-Button.locked = true
-</code></pre>
-            </div>
-            <div class="component" id="print_cb">
-                <p>проверка на нажатие.</p>
-                <code>GUI.Button:onClick(mon, x, y)</code>
-                <p>Пример: </p>
-                <pre><code> -- можно создаем несколько кнопок 
-local Button_1 = gui.Button(term, { 5, 5 }, "text", { 1, 1 },nil,"base")
-local Button_2 = gui.Button(term, { 5, 5 }, "text", { 1, 1 },nil,"base")
-local Button_3 = gui.Button(term, { 5, 5 }, "text", { 1, 1 },nil,"base")
-
--- создаем цикл на проверку нажатия всех кнопок
-while true do
-    local _, side, x, y = os.pullEvent("monitor_touch")
-    gui.Manager:callAll("base", "onClick", side, x, y)
-end
-</code></pre>
+-- а затем добавляем его в группу base
+GUI.Manager:add(Label, "base")</code></pre>
+                <p>доп. информация</p>
             </div>
         </div>
-        <div class="tab-content " id="CheckBox_and_RadioButton">
+        <div class="tab-content" id="Buttons">
             <div class="component">
-                <h1><code>GUI.CheckBox(mon, pos, text, align, func, ...)</code></h1>
-                <p>тоже самое что чек боксы на сайтах. можете также ддобавить надписи к ним</p>
-
-                <h1><code>GUI.RadioButton(mon, pos, text, align, func, ...)</code></h1>
-                <p>БУКВАЛЬНО тоже самое что и CheckBox, за одним исключением. в ... первое имя, это будет группа для
-                    чекбоксов (и только для них), последующие это буду именя для групп GUI.Manager. А также если
-                    несколько радио кнопок обьеденить в одну группу, то при нажатии по одному все остальные в группе
-                    отключаются. другими словами, может быть октивна только одна радио кнопка в группе </p>
-                <p>Описание:</p>
-                <ul>
-                    <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
-                    <li>pos - позиция чекбокса</li>
-                    <li>text - - текст чекбокса, не обязательна</li>
-                    <li>align - с какйо сторы будет текст от чекбокса, 1 - справа, 2 - слева</li>
-                    <li>func - функция, выпалняемая при нажатии по чекбоксу</li>
-                    <li>... - одна и более групп в которые вы хотите добавить element (у RadioButton первое имя в ...
-                        это названия для групировки радио кнопок в одну группу. не в GUI.Manager)</li>
-
-                </ul>
-            </div>
-
-            <div class="component">
-                <table class="method-table">
+                <hr class="hr-text h2" data-content="Функция">
+                <p>описание</p>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Метод</th>
@@ -631,90 +687,27 @@ end
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="method-name"> <a href="#print_cb"><code>:print()</code></a></td>
-                            <td class="method-desc">функция для отображения объекта.</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"> <a href="#onClick_cb"><code>:onClick(mon, x, y)</code></a></td>
-                            <td class="method-desc">меняет состояние тригера на выкл\вкл</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>:swichLock()</code></td>
-                            <td class="method-desc"> меняеть параметр locked противоположные. всё, а вы что думали?</td>
+                            <td class="name"> <a href="#add"><code>метод</code></a></td>
+                            <td class="desc">описание метода</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="component" id="print_cb">
-                <p>отобразить объект.</p>
-                <code>GUI.CheckBox:print()</code>
-                <code>GUI.RadioButton:print()</code>
-                <p>Пример: </p>
+            <div class="component" id="add">
+                <p>полная запись функции</p>
+                <pre><code  class="language-lua">-- создаем объект типа Label
+local Label = {...}
 
-                <pre><code> -- создаем кнопку 
-local CheckBox = gui.CheckBox(term, { 5, 5 }, "text", 1, nil, "base")
-local RadioButton = gui.RadioButton(term, { 5, 5 }, "text", 1, nil, nil, "base")
-
--- создаем цикл на проверку нажатия 
-while true do
-    local _, side, x, y = os.pullEvent("monitor_touch")
-    GUI.Manager:callAll("base", "onClick", side, x, y)
-end
-</code></pre>
-                </code></pre>
-            </div>
-            <div class="component" id="onClick_cb">
-                <p>проверка на нажатие.</p>
-                <code>GUI.CheckBox:onClick(mon, x, y )</code>
-                <code>GUI.RadioButton:onClick(mon, x, y )</code>
-                <p>Пример: </p>
-                <pre><code> -- можно создаем несколько тригеров 
-local CheckBox_1 = gui.CheckBox(term, { 5, 5 }, "text", 1, nil, "base")
-local CheckBox_2 = gui.CheckBox(term, { 5, 5 }, "text", 1, nil, "base")
-local CheckBox_3 = gui.CheckBox(term, { 5, 5 }, "text", 1, nil, "base")
-
--- или
-local RadioButton_1 = gui.RadioButton(term, { 5, 5 }, "text", 1, nil, "gr_1", "base")
-local RadioButton_2 = gui.RadioButton(term, { 5, 5 }, "text", 1, nil, "gr_1", "base")
-local RadioButton_3 = gui.RadioButton(term, { 5, 5 }, "text", 1, nil, "gr_1", "base")
-
--- создаем цикл на проверку нажатия всех тригеров 
-while true do
-    local _, side, x, y = os.pullEvent("monitor_touch")
-    gui.Manager:callAll("base", "onClick", side, x, y)
-end
-</code></pre>
+-- а затем добавляем его в группу base
+GUI.Manager:add(Label, "base")</code></pre>
+                <p>доп. информация</p>
             </div>
         </div>
-
-        <div class="tab-content" id="ProgressBar">
+        <div class="tab-content" id="CheckBox">
             <div class="component">
-                <h1><code>GUI.ProgressBar(mon, pos, val, align, func, ...)</code></h1>
-                <p>знаете что такое полоса загрузки? это оно самое. с помощью этого обьекта можно отображать обьем
-                    емкостей любых веществ. либо для управление чего то путем перемещения рукой\мышкой</p>
-                <p>Описание:</p>
-                <ul>
-                    <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
-                    <li>pos - позиция ProgressBar</li>
-                    <ul>
-                        <li>если aling 1 или 2 - pos равен (x1, x2, y)</li>
-                        <li>если aling 3 или 4 - pos равен (x, y1, y2)</li>
-                    </ul>
-                    <li>val - текст кнопки, не обязательна. если не указывать (поставить nil) то значения будут братся
-                        из позиций </li>
-                    <ul>
-                        <p>aling - направление для отображения полоски</p>
-                        <li>1 - слева на право</li>
-                        <li>2 - справа на лево</li>
-                        <li>3 - сверху вниз</li>
-                        <li>4 - снизу верх</li>
-                    </ul>
-                    <li>func - функция, выпалняемая при изминении значения</li>
-                    <li>... - одна и более групп в которые вы хотите добавить element</li>
-                </ul>
-            </div>
-            <div class="component">
-                <table class="method-table">
+                <hr class="hr-text h2" data-content="Функция">
+                <p>описание</p>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Метод</th>
@@ -723,93 +716,27 @@ end
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="method-name"> <a href="#print_pb"><code>:print()</code></a></td>
-                            <td class="method-desc">функция для отображения объекта.</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"> <a href="#onClick_pb"><code>:onClick(mon, x, y)</code></a></td>
-                            <td class="method-desc">меняет состояние тригера на выкл\вкл</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><code>:swichLock()</code></td>
-                            <td class="method-desc"> меняеть параметр locked противоположные. всё, а вы что думали?</td>
-                        </tr>
-
-                        <tr>
-                            <td class="method-name"><a href="setVal"><code>:setVal(val)</code></a></td>
-                            <td class="method-desc">установить текущее значение</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><a href="setVal"><code>:setMaxVal(val)</code></a></td>
-                            <td class="method-desc">установить максимальное значение</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><a href="setVal"></a><code>:setMinVal(val)</code></a></td>
-                            <td class="method-desc"> установить минимальное значение</td>
+                            <td class="name"> <a href="#add"><code>метод</code></a></td>
+                            <td class="desc">описание метода</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="component" id="print_pb">
-                <p>проверка на нажатие.</p>
-                <code>GUI.ProgressBar:print( )</code>
-                <p>Пример: </p>
-                <pre><code>local ProgressBar = gui.ProgressBar(term, { 5, 10, 5 }, nil, 1, nil, "base") 
+            <div class="component" id="add">
+                <p>полная запись функции</p>
+                <pre><code  class="language-lua">-- создаем объект типа Label
+local Label = {...}
 
-while true do
-    local _, side, x, y = os.pullEvent("monitor_touch")
-    ProgressBar:onClick(side, x, y)
-end
-</code></pre>
-            </div>
-            <div class="component" id="onClick_pb">
-                <p>проверка на нажатие.</p>
-                <code>GUI.ProgressBar:onClick(mon, x, y )</code>
-                <p>Пример: </p>
-                <pre><code> -- можно создаем несколько  
-local ProgressBar_1 = gui.ProgressBar(term, { 5, 10, 5 }, nil, 1, nil, "base") 
-local ProgressBar_2 = gui.ProgressBar(term, { 5, 10, 6 }, nil, 1, nil, "base") 
-local ProgressBar_3 = gui.ProgressBar(term, { 5, 10, 7 }, nil, 1, nil, "base") 
-
--- создаем цикл на проверку нажатия  
-while true do
-    local _, side, x, y = os.pullEvent("monitor_touch")
-    gui.Manager:callAll("base", "onClick", side, x, y)
-end
-</code></pre>
-            </div>
-            <div class="component" id="setVal">
-                <p>проверка на нажатие.</p>
-                <code>GUI.ProgressBar:setVal(val)</code>
-                <code>GUI.ProgressBar:setMaxVal(val)</code>
-                <code>GUI.ProgressBar:setMinVal(val)</code>
-                <p>Пример: </p>
-                <pre><code>local ProgressBar = gui.ProgressBar(term, { 5, 10, 5 }, { 0, 10, 2 }, 1, nil, "base")
-
--- устанавливаем другие значения 
-ProgressBar:setVal(50)
-ProgressBar:setMaxVal(100)
-ProgressBar:setMinVal(-100)</code></pre>
+-- а затем добавляем его в группу base
+GUI.Manager:add(Label, "base")</code></pre>
+                <p>доп. информация</p>
             </div>
         </div>
-
-        <div class="tab-content" id="TextInput_and_TextArea">
+        <div class="tab-content" id="RadioButton">
             <div class="component">
-                <h1><code>GUI.TextInput(mon, pos, text, ..)</code></h1>
-                <h1><code>GUI.TextArea(mon, pos, text, ..)</code></h1>
-
-                <p>элемент для печатанья текста</p>
-
-                <p>Описание:</p>
-                <ul>
-                    <li>mon - монитор (или терминал) на котором будет отображатся объект</li>
-                    <li>pos - позиция элемента (x1, x2, y). у TextArea -> (x1, y1, x2, y2)</li>
-                    <li>text - начальные текст</li>
-                    <li>... - одна и более групп в которые вы хотите добавить element</li>
-                </ul>
-            </div>
-            <div class="component">
-                <table class="method-table">
+                <hr class="hr-text h2" data-content="Функция">
+                <p>описание</p>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Метод</th>
@@ -818,69 +745,112 @@ ProgressBar:setMinVal(-100)</code></pre>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="method-name"> <a href="#print_tx"><code>:print(text)</code></a></td>
-                            <td class="method-desc">функция для отображения объекта. </td>
+                            <td class="name"> <a href="#add"><code>метод</code></a></td>
+                            <td class="desc">описание метода</td>
                         </tr>
-                        <tr>
-                            <td class="method-name"> <a href="#clear_tx"><code>:clear()</code></a></td>
-                            <td class="method-desc">очистить элемент от текста</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"> <a href="#onClick_tx"><code>:onClick(mon, x, y)</code></a></td>
-                            <td class="method-desc">дабы начать печатат ьв жлемент, нужно на него нажать</td>
-                        </tr>
-                        <tr>
-                            <td class="method-name"><a href="#keyPress"><code>:keyPress(key)</code></a></td>
-                            <td class="method-desc">функция для ввода одной буквы</td>
-                        </tr>
-
                     </tbody>
                 </table>
             </div>
-            <div class="component" id="print_tx">
-                <p>проверка на нажатие.</p>
-                <code>GUI.ProgressBar:print( )</code>
-                <p>Пример: </p>
-                <pre><code>local TextInput = gui.TextInput(term, { 5, 10, 5 }, "base text", "base") 
-local TextArea = gui.TextArea(term, { 5, 10, 5, 10 }, "base text", "base") 
+            <div class="component" id="add">
+                <p>полная запись функции</p>
+                <pre><code  class="language-lua">-- создаем объект типа Label
+local Label = {...}
 
-gui.Manager:callAll("base", "print")
--- или
-TextInput:print()
-TextArea:print()
-
-</code></pre>
+-- а затем добавляем его в группу base
+GUI.Manager:add(Label, "base")</code></pre>
+                <p>доп. информация</p>
             </div>
-            <div class="component" id="onClick_tx">
-                <p>ввод текста.</p>
-                <code>GUI.ProgressBar:onClick(mon, x, y )</code>
-                <p>Пример: </p>
-                <pre><code> -- можно создаем несколько  
-local TextInput_1 = gui.TextInput(term, { 5, 10, 5 }, "baset text 1", "base") 
-local TextInput_2 = gui.TextInput(term, { 5, 10, 6 }, "baset text 2", "base") 
-local TextInput_3 = gui.TextInput(term, { 5, 10, 7 }, "baset text 3", "base") 
-
--- создаем цикл на проверку нажатия  
-while true do
-    local _, side, x, y = os.pullEvent("monitor_touch")
-    gui.Manager:callAll("base", "onClick", side, x, y)
-end
-
--- а также цикл на то чтобы печатать текст с клавиатуры, если вы в терминале. на мониторе с виртуальной клавиатуры
-
-while true do
-    local _, value = os.pullEvent()
-    if event == "char" or event == "key" then
-        gui.Manager:callAll("base", "keyPress", value)
-    end
-end
-</code></pre>
-            </div>
-<p> в будущем появистя проект Virtual keyboard </p>
         </div>
+        <div class="tab-content" id="Range">
+            <div class="component">
+                <hr class="hr-text h2" data-content="Функция">
+                <p>описание</p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Метод</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="name"> <a href="#add"><code>метод</code></a></td>
+                            <td class="desc">описание метода</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="component" id="add">
+                <p>полная запись функции</p>
+                <pre><code  class="language-lua">-- создаем объект типа Label
+local Label = {...}
 
+-- а затем добавляем его в группу base
+GUI.Manager:add(Label, "base")</code></pre>
+                <p>доп. информация</p>
+            </div>
+        </div>
+        <div class="tab-content" id="TextInput">
+            <div class="component">
+                <hr class="hr-text h2" data-content="Функция">
+                <p>описание</p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Метод</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="name"> <a href="#add"><code>метод</code></a></td>
+                            <td class="desc">описание метода</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="component" id="add">
+                <p>полная запись функции</p>
+                <pre><code  class="language-lua">-- создаем объект типа Label
+local Label = {...}
 
+-- а затем добавляем его в группу base
+GUI.Manager:add(Label, "base")</code></pre>
+                <p>доп. информация</p>
+            </div>
+        </div>
+        <div class="tab-content" id="TextArea">
+            <div class="component">
+                <hr class="hr-text h2" data-content="Функция">
+                <p>описание</p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Метод</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="name"> <a href="#add"><code>метод</code></a></td>
+                            <td class="desc">описание метода</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="component" id="add">
+                <p>полная запись функции</p>
+                <pre><code  class="language-lua">-- создаем объект типа Label
+local Label = {...}
+
+-- а затем добавляем его в группу base
+GUI.Manager:add(Label, "base")</code></pre>
+                <p>доп. информация</p>
+            </div>
+        </div>
     </div>
+
+
     <script>
         const buttons = document.querySelectorAll(".tab-button");
         const tabs = document.querySelectorAll(".tab-content");
