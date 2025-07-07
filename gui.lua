@@ -134,6 +134,12 @@ end
 gui.Base = createClass()
 function gui.Base:init(mon, pos, owner)
     self.mon = mon or term
+
+    if self.mon == term then
+        self.monID = term
+    else
+        self.monID = peripheral.getName(self.mon)
+    end
     self.pos = pos or { 1, 1 }
     self.type = "Base"
 
@@ -380,7 +386,7 @@ end
 
 function gui.Button:onClick(mon, x, y)
     if
-        not self.locked and mon == self.mon
+        not self.locked and (self.mon.setTextScale and tostring(peripheral.getName(self.mon)) == tostring(mon) or tostring(self.mon) == tostring(mon))
         and x >= self.pos[1] - self.offset.left
         and x <= self.pos[1] + self.offset.right
         and y >= self.pos[2] - self.offset.up
@@ -433,7 +439,7 @@ end
 
 function gui.CheckBox:onClick(mon, x, y)
     if
-        not self.locked and mon == self.mon
+        not self.locked and (self.mon.setTextScale and tostring(peripheral.getName(self.mon)) == tostring(mon) or tostring(self.mon) == tostring(mon))
         and x >= self.pos[1] - self.offset.left
         and x <= self.pos[1] + self.offset.right
         and y >= self.pos[2] - self.offset.up
@@ -464,7 +470,7 @@ end
 
 function gui.RadioButton:onClick(mon, x, y)
     if
-        not self.locked and mon == self.mon
+        not self.locked and (self.mon.setTextScale and tostring(peripheral.getName(self.mon)) == tostring(mon) or tostring(self.mon) == tostring(mon))
         and x >= self.pos[1] - self.offset.left
         and x <= self.pos[1] + self.offset.right
         and y >= self.pos[2] - self.offset.up
@@ -494,12 +500,13 @@ function gui.Range:init(mon, pos, val, align, func, owner)
     gui.Range.super.init(self, mon, pos, owner)
 
     self.align = align or 1
-    self.val = val
 
     self.locked = false
-    self.func = false
+    self.func = func
 
     self.length = self.pos[3] - 1
+
+    self.val = val or { 0, self.length, 0 }
 
     self.colors = {
         back = gui.defColor.r_back,
@@ -573,7 +580,7 @@ end
 
 function gui.Range:onClick(mon, x, y)
     if
-        not self.locked and mon == self.mon
+        not self.locked and (self.mon.setTextScale and tostring(peripheral.getName(self.mon)) == tostring(mon) or tostring(self.mon) == tostring(mon))
     then
         local n1, n2 = table.unpack(self.pos)
         local len = self.length
@@ -584,7 +591,7 @@ function gui.Range:onClick(mon, x, y)
             local percent = (x - self.pos[1]) / self.length
             if self.align == 2 then percent = 1 - percent end
             self:setVal((math.round(self.val[1] + percent * (self.val[2] - self.val[1]))))
-            safeCall(self, self.func)
+            safeCall(self.func, self)
             self:print()
         elseif
             (self.align == 3 or self.align == 4)
@@ -593,7 +600,7 @@ function gui.Range:onClick(mon, x, y)
             local percent = (self.align == 4) and (1 - ((y - self.pos[2]) / self.length)) or
                 ((y - self.pos[2]) / self.length)
             self:setVal((math.round(self.val[1] + percent * (self.val[2] - self.val[1]))))
-            safeCall(self, self.func)
+            safeCall(self.func, self)
             self:print()
         end
     end
@@ -672,7 +679,7 @@ function gui.TextArea:print()
 end
 
 function gui.TextArea:onClick(mon, x, y)
-    if not self.locked and mon == self.mon
+    if not self.locked and (self.mon.setTextScale and tostring(peripheral.getName(self.mon)) == tostring(mon) or tostring(self.mon) == tostring(mon))
         and x >= self.pos[1]
         and y >= self.pos[2]
         and x <= self.pos[3]
