@@ -153,8 +153,6 @@ function gui.Base:add(name, ...)
             error("GUI object with name { " .. name .. " } already exists.", 2)
         end
         gui.Manager.obj[name] = self
-    else
-        table.insert({ ... }, 1, name)
     end
 
     for i = 1, select("#", ...) do
@@ -189,16 +187,16 @@ function gui.Base:print()
 end
 
 gui.Label = createClass(gui.Base)
-function gui.Label:init(mon, pos, value, align, owner)
+function gui.Label:init(mon, pos, val, align, owner)
     gui.Label.super.init(self, mon, pos, owner)
 
     self.type = "Label"
-    self.value = value
+    self.val = val
     self.align = align or { 1, 1 }
 
     local function al(axis)
-        return (self.align[1] == 3) and (axis - #tostring(self.value[1]) + 1) or
-            (self.align[1] == 2) and math.round(axis - #tostring(self.value[1]) / 2) or
+        return (self.align[1] == 3) and (axis - #tostring(self.val) + 1) or
+            (self.align[1] == 2) and math.round(axis - #tostring(self.val) / 2) or
             axis
     end
 
@@ -211,12 +209,14 @@ function gui.Label:init(mon, pos, value, align, owner)
     }
 end
 
-function gui.Label:print()
+function gui.Label:print(val)
     if not self.visible then return end
     if self.owner then setColors(self.colors, self.owner.colors) end
     self:setMonColor(self.colors.back, self.colors.text)
-    Write(self.mon, self.pos, tostring(self.value[1]), self.align[2])
+    self.val = val or self.val
+    Write(self.mon, self.pos, tostring(self.val), self.align[2])
     self:setMonColor(gui.defColor.B_Back, gui.defColor.B_Text)
+    return self
 end
 
 gui.Table = createClass(gui.Base)
@@ -256,7 +256,7 @@ function gui.Table:init(mon, column, row, name, owner)
                     local y = (v == 1 and r1) or (v == 2 and r2) or
                         (h == 1 and r1 + 2) or (h == 2 and math.round((r1 + r2) / 2)) or (r2 - 2)
 
-                    self.labels[i] = gui.Label(self.mon, { x, y }, { "+" .. name[i][1] .. "+" },
+                    self.labels[i] = gui.Label(self.mon, { x, y }, "+" .. name[i][1] .. "+",
                         { h, (v <= 2) and 1 or 2 })
                     self.labels[i].colors = { back = self.colors.f_back, text = self.colors.f_text }
                 end
@@ -364,7 +364,7 @@ function gui.Button:init(mon, pos, text, align, func, owner)
         locked_text = gui.defColor.tg_locked_text,
     }
 
-    self.label = gui.Label(self.mon, self.pos, { self.text }, { self.align[1], 1 })
+    self.label = gui.Label(self.mon, self.pos, self.text, { self.align[1], 1 })
     self.label.colors = { table.unpack(actionColor(self)) }
 end
 
@@ -372,7 +372,7 @@ function gui.Button:print()
     if not self.visible then return end
 
     if self.owner then setColors(self.colors, self.owner.colors) end
-    if self.char then self.label.value = { actionText(self) } end
+    if self.char then self.label.val = actionText(self) end
     self:setMonColor(table.unpack(actionColor(self)))
 
     for i = 0, self.offset.up + self.offset.down, 1 do
@@ -407,34 +407,23 @@ function gui.CheckBox:init(mon, pos, text, align, func, owner)
     self.type = "CheckBox"
 
     self.char = { "[x]", "[ ]" }
-    self.label.value = { actionText(self) }
+    self.label.val = actionText(self)
 
     if type(self.align[2]) == "number" then
         self.offset = { left = self.align[2], right = self.align[2], up = self.align[2], down = self.align[2] }
     elseif type(self.align[2]) == "table" then
         local a = self.align[2]
         if #a == 2 then
-            self.offset = {
-                left = a[1],
-                right = a[1],
-                up = a[2],
-                down = a[2]
-            }
+            self.offset = { left = a[1], right = a[1], up = a[2], down = a[2] }
         elseif #a == 4 then
-            self.offset = {
-                left = a[1],
-                right = a[2],
-                up = a[3],
-                down = a[4]
-            }
+            self.offset = { left = a[1], right = a[2], up = a[3], down = a[4] }
         end
     end
 
     self.pos[1] = self.align[1] == 2 and self.pos[1] + 1 or
-        self.align[1] == 3 and self.pos[1] + #self.label.value[1] / 2 - 1 or self.pos[1] - 1
+        self.align[1] == 3 and self.pos[1] + #self.label.val / 2 - 1 or self.pos[1] - 1
 
-
-    self.offset.right = self.offset.right + #self.label.value[1] - 1
+    self.offset.right = self.offset.right + #self.label.val - 1
 end
 
 function gui.CheckBox:onClick(mon, x, y)
@@ -446,26 +435,21 @@ function gui.CheckBox:onClick(mon, x, y)
         and y <= self.pos[2] + self.offset.down
     then
         self.active = not self.active
-        self.label.value = { actionText(self) }
+        self.label.val = actionText(self)
         self:print()
         safeCall(self.func, self)
     end
 end
 
 gui.RadioButton = createClass(gui.CheckBox)
-gui.RadioButton.groups = {}
-function gui.RadioButton:init(mon, pos, text, align, name, func)
-    gui.RadioButton.super.init(self, mon, pos, text, align, func)
+function gui.RadioButton:init(mon, pos, text, align, g_name, func, owner)
+    gui.RadioButton.super.init(self, mon, pos, text, align, func, owner)
     self.char = { "{x}", "{ }" }
     self.type = "RadioButton"
-    self.name = name or "base"
 
-    self.label.value = { actionText(self) }
+    self.groupName = g_name
 
-    if not self.groups[self.name] then
-        self.groups[self.name] = {}
-    end
-    table.insert(self.groups[self.name], self)
+    self.label.val = actionText(self)
 end
 
 function gui.RadioButton:onClick(mon, x, y)
@@ -476,22 +460,24 @@ function gui.RadioButton:onClick(mon, x, y)
         and y >= self.pos[2] - self.offset.up
         and y <= self.pos[2] + self.offset.down
     then
-        for _, check in ipairs(gui.RadioButton.groups[self.name]) do
-            if check.active == true and check.locked == true then
-                return
+        for _, value in ipairs(self.groupName) do
+            for _, obj in ipairs(gui.Manager.groups[value]) do
+                if obj.active == true and obj.locked == true then
+                    return
+                end
             end
-        end
 
-        for _, check in ipairs(gui.RadioButton.groups[self.name]) do
-            check.active = check.locked and check.active or false
-            check.label.value = { actionText(check) }
+            for _, obj in ipairs(gui.Manager.groups[value]) do
+                obj.active = obj.locked and obj.active or false
+                obj.label.val = actionText(obj)
 
-            check:print()
+                obj:print()
+            end
+            self.active = true
+            self.label.val = actionText(self)
+            self:print()
+            safeCall(self.func, self)
         end
-        self.active = true
-        self.label.value = { actionText(self) }
-        self:print()
-        safeCall(self.func, self)
     end
 end
 
@@ -564,18 +550,22 @@ function gui.Range:setVal(val)
     if val <= self.val[1] then val = self.val[1] end
     if val >= self.val[2] then val = self.val[2] end
     self.val[3] = math.round(val)
+    safeCall(self.func, self)
+    return self
 end
 
 function gui.Range:setMinVal(val)
     if self.locked then return end
     if val >= self.val[3] then val = self.val[3] end
     self.val[1] = val
+    return self
 end
 
 function gui.Range:setMaxVal(val)
     if self.locked then return end
     if val <= self.val[3] then val = self.val[3] end
     self.val[2] = val
+    return self
 end
 
 function gui.Range:onClick(mon, x, y)
@@ -591,7 +581,6 @@ function gui.Range:onClick(mon, x, y)
             local percent = (x - self.pos[1]) / self.length
             if self.align == 2 then percent = 1 - percent end
             self:setVal((math.round(self.val[1] + percent * (self.val[2] - self.val[1]))))
-            safeCall(self.func, self)
             self:print()
         elseif
             (self.align == 3 or self.align == 4)
@@ -600,7 +589,6 @@ function gui.Range:onClick(mon, x, y)
             local percent = (self.align == 4) and (1 - ((y - self.pos[2]) / self.length)) or
                 ((y - self.pos[2]) / self.length)
             self:setVal((math.round(self.val[1] + percent * (self.val[2] - self.val[1]))))
-            safeCall(self.func, self)
             self:print()
         end
     end
