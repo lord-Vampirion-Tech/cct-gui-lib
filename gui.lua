@@ -25,7 +25,7 @@ gui.defColor = {
     tg_locked_back = colors.red,
     tg_locked_text = colors.yellow,
 
-    ---- progress bar
+    ---- range
     r_back = colors.gray,
     r_used = colors.green,
     r_locked = colors.red,
@@ -301,14 +301,7 @@ function gui.Table:print()
     end
 
     self:setMonColor(gui.defColor.B_Back, gui.defColor.B_Text)
-end
-
-gui.Frame = createClass(gui.Table)
-function gui.Frame:init(mon, pos, name, align)
-    gui.Frame.super.init(self, mon, { pos[1], pos[3] }, { pos[2], pos[4] }, { name, align })
-
-    self.type = "Frame"
-end
+end 
 
 local function actionColor(self)
     return {
@@ -545,29 +538,23 @@ function gui.Range:print()
     term.redirect(old)
 end
 
-function gui.Range:setVal(val)
+function gui.Range:setVal(min, max, val)
     if self.locked then return end
+ 
+    if min >= self.val[3] then min = self.val[3] end
+    self.val[1] = min
+
+    if max <= self.val[3] then max = self.val[3] end
+    self.val[2] = max
+
     if val <= self.val[1] then val = self.val[1] end
     if val >= self.val[2] then val = self.val[2] end
     self.val[3] = math.round(val)
+
     safeCall(self.func, self)
     return self
 end
-
-function gui.Range:setMinVal(val)
-    if self.locked then return end
-    if val >= self.val[3] then val = self.val[3] end
-    self.val[1] = val
-    return self
-end
-
-function gui.Range:setMaxVal(val)
-    if self.locked then return end
-    if val <= self.val[3] then val = self.val[3] end
-    self.val[2] = val
-    return self
-end
-
+ 
 function gui.Range:onClick(mon, x, y)
     if
         not self.locked and (self.mon.setTextScale and tostring(peripheral.getName(self.mon)) == tostring(mon) or tostring(self.mon) == tostring(mon))
@@ -580,7 +567,7 @@ function gui.Range:onClick(mon, x, y)
         then
             local percent = (x - self.pos[1]) / self.length
             if self.align == 2 then percent = 1 - percent end
-            self:setVal((math.round(self.val[1] + percent * (self.val[2] - self.val[1]))))
+            self:setVal(self.val[1],self.val[2],(math.round(self.val[1] + percent * (self.val[2] - self.val[1]))))
             self:print()
         elseif
             (self.align == 3 or self.align == 4)
@@ -588,19 +575,19 @@ function gui.Range:onClick(mon, x, y)
         then
             local percent = (self.align == 4) and (1 - ((y - self.pos[2]) / self.length)) or
                 ((y - self.pos[2]) / self.length)
-            self:setVal((math.round(self.val[1] + percent * (self.val[2] - self.val[1]))))
+            self:setVal(self.val[1],self.val[2],(math.round(self.val[1] + percent * (self.val[2] - self.val[1]))))
             self:print()
         end
     end
 end
 
 gui.TextArea = createClass(gui.Base)
-function gui.TextArea:init(mon, pos, text, owner)
+function gui.TextArea:init(mon, pos, text,func, owner)
     gui.TextArea.super.init(self, mon, pos, owner)
 
-    self.text = text or "qwe1213rty"
+    self.text = text or ""
     self.type = "TextArea"
-    self.func = nil
+    self.func = func or nil
 
     self.size = { self.pos[3] + 1 - self.pos[1], self.pos[4] - self.pos[2] + 1 }
 
@@ -698,23 +685,16 @@ function gui.TextArea:ketPress(key)
         self:print()
     end
 end
-
-gui.TextInput = createClass(gui.TextArea)
-function gui.TextInput:init(mon, pos, text, owner)
-    pos[4] = pos[2]
-    gui.TextInput.super.init(self, mon, pos, text, owner)
-end
+ 
 
 -- Укороченные названия для удобства
 gui.M  = gui.Manager
-gui.L  = gui.Label
-gui.F  = gui.Frame
+gui.L  = gui.Label 
 gui.T  = gui.Table
 gui.B  = gui.Button
 gui.CB = gui.CheckBox
 gui.RB = gui.RadioButton
-gui.R  = gui.Range
-gui.TI = gui.TextInput
+gui.R  = gui.Range 
 gui.TA = gui.TextArea
 
 return gui
